@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,4 +39,4 @@ public class AuthController {
         System.out.println(" [API SUCCESS] Login exitoso para usuario: " + request.getEmail() + ". JWT generado.");
         return ResponseEntity.ok(response);
     }
-}
+}*/

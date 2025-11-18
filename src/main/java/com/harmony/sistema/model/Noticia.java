@@ -12,4 +12,6 @@ public class Noticia {
     private String titulo; // El título de la noticia
     private String contenido; // Texto principal de la noticia
     private String imagenUrl; // URL de la imagen asociada
+
+    
 }
