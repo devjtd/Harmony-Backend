@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,4 +52,4 @@ public class AuthController {
         System.out.println(" [API SUCCESS] Login exitoso para usuario: " + request.getEmail() + ". JWT generado.");
         return ResponseEntity.ok(response);
     }
-}
+}*/
