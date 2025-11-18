@@ -1,5 +1,7 @@
 package com.harmony.sistema.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,16 +28,27 @@ public class AuthController {
         System.out.println(" [API] Solicitud POST a /api/auth/register. Intentando registrar usuario: " + request.getEmail());
         // 1. Llama al servicio de autenticación para registrar al usuario y obtener la respuesta.
         AuthResponse response = authService.register(request);
+
+
         System.out.println(" [API SUCCESS] Registro exitoso para usuario: " + request.getEmail());
         return ResponseEntity.ok(response);
     }
 
     // Procesa la solicitud de inicio de sesión, autenticando al usuario y generando un token JWT.
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request, HttpServletResponse responseHttp) {
         System.out.println(" [API] Solicitud POST a /api/auth/login. Intentando autenticar usuario: " + request.getEmail());
         // 1. Llama al servicio de autenticación para loguear al usuario y obtener la respuesta.
         AuthResponse response = authService.login(request);
+
+        Cookie cookie = new Cookie("token", response.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
+
+        responseHttp.addCookie(cookie);
+
         System.out.println(" [API SUCCESS] Login exitoso para usuario: " + request.getEmail() + ". JWT generado.");
         return ResponseEntity.ok(response);
     }
