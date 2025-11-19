@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -461,4 +461,4 @@ public class AdminController {
         return "redirect:/admin/talleres";
     }
 
-}
+}*/

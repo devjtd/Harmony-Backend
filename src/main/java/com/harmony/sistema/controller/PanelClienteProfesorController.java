@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import java.util.List;
 
@@ -124,4 +124,4 @@ public class PanelClienteProfesorController {
             return "redirect:/cambiar-clave";
         }
     }
-}
+}*/

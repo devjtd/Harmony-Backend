@@ -5,7 +5,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -46,15 +45,15 @@ public class Horario {
 
     @ManyToOne
     @JoinColumn(name = "taller_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "taller-horarios")
     private Taller taller;
 
     @ManyToOne
     @JoinColumn(name = "profesor_id")
-    @JsonIgnoreProperties({"horariosImpartidos", "user"})
+    @JsonBackReference(value = "profesor-horarios")
     private Profesor profesor;
 
     @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "horario-inscripciones")
     private List<Inscripcion> inscripciones;
 }

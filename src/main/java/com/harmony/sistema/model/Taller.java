@@ -46,6 +46,6 @@ public class Taller {
     private String temas;
 
     @OneToMany(mappedBy = "taller", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "taller-horarios")
     private List<Horario> horarios;
 }

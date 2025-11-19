@@ -1,5 +1,6 @@
 package com.harmony.sistema.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,69 +16,149 @@ public class TallerService {
     @Autowired
     private TallerRepository tallerRepository;
 
-    // 1. Retorna una lista de todos los talleres cuya propiedad 'activo' es verdadera.
+    // ✅ CORREGIDO: Usa query con FETCH JOIN
     public List<Taller> encontrarTalleresActivos() {
-        System.out.println(" [TALLER SERVICE] Buscando todos los talleres activos.");
-        return tallerRepository.findByActivoTrue();
+        System.out.println("🔍 [TALLER SERVICE] Buscando todos los talleres activos.");
+        List<Taller> talleres = tallerRepository.findByActivoTrue();
+        System.out.println("✅ [TALLER SERVICE] " + talleres.size() + " talleres activos encontrados");
+        return talleres;
     }
 
-    // 1. Retorna una lista de todos los talleres almacenados en la base de datos.
+    // ✅ CORREGIDO: Usa query con FETCH JOIN
     public List<Taller> listarTalleres() {
-        System.out.println(" [TALLER SERVICE] Listando todos los talleres (activos e inactivos).");
-        return tallerRepository.findAll();
+        System.out.println("🔍 [TALLER SERVICE] Listando todos los talleres (activos e inactivos).");
+        List<Taller> talleres = tallerRepository.findAllWithHorariosAndProfesores();
+        System.out.println("✅ [TALLER SERVICE] " + talleres.size() + " talleres encontrados");
+        return talleres;
     }
 
-    // 1. Establece el taller como activo y lo guarda en la base de datos.
     @Transactional
     public Taller crearTallerSolo(Taller taller) {
-        System.out.println(" [TALLER SERVICE] Iniciando creación de un nuevo taller.");
+        System.out.println("🔵 [TALLER SERVICE] Iniciando creación de nuevo taller: " + taller.getNombre());
+        
+        if (taller.getNombre() == null || taller.getNombre().trim().isEmpty()) {
+            System.out.println("❌ [TALLER SERVICE ERROR] Nombre del taller vacío");
+            throw new RuntimeException("El nombre del taller es obligatorio");
+        }
+        
+        if (taller.getDescripcion() == null || taller.getDescripcion().trim().isEmpty()) {
+            System.out.println("❌ [TALLER SERVICE ERROR] Descripción del taller vacía");
+            throw new RuntimeException("La descripción del taller es obligatoria");
+        }
+        
         taller.setActivo(true);
-        System.out.println(" [TALLER SERVICE] Estableciendo el taller como activo.");
-        // Los demás campos (nombre, descripcion, precio, temas, etc.) ya están cargados por @ModelAttribute
+        
+        if (taller.getPrecio() == null) {
+            System.out.println("⚠️ [TALLER SERVICE] Precio null, asignando 0");
+            taller.setPrecio(BigDecimal.ZERO);
+        }
+        
+        if (taller.getDuracionSemanas() == null || taller.getDuracionSemanas() <= 0) {
+            System.out.println("⚠️ [TALLER SERVICE] Duración semanas inválida, asignando 12");
+            taller.setDuracionSemanas(12);
+        }
+        
+        if (taller.getClasesPorSemana() == null || taller.getClasesPorSemana() <= 0) {
+            System.out.println("⚠️ [TALLER SERVICE] Clases por semana inválidas, asignando 2");
+            taller.setClasesPorSemana(2);
+        }
+        
+        System.out.println("✔️ [TALLER SERVICE] Taller marcado como activo");
+        System.out.println("💰 [TALLER SERVICE] Precio: " + taller.getPrecio());
+        System.out.println("📅 [TALLER SERVICE] Duración: " + taller.getDuracionSemanas() + " semanas");
+        System.out.println("📚 [TALLER SERVICE] Clases/semana: " + taller.getClasesPorSemana());
+        System.out.println("🖼️ [TALLER SERVICE] Imagen Taller: " + taller.getImagenTaller());
+        System.out.println("🖼️ [TALLER SERVICE] Imagen Inicio: " + taller.getImagenInicio());
+        
         Taller nuevoTaller = tallerRepository.save(taller);
-        System.out.println(" [TALLER SERVICE SUCCESS] Taller creado y guardado con ID: " + nuevoTaller.getId());
+        System.out.println("✅ [TALLER SERVICE SUCCESS] Taller creado y guardado con ID: " + nuevoTaller.getId());
         return nuevoTaller;
     }
 
-    // 1. Obtiene un Taller existente por su ID, actualiza sus campos con los valores del DTO recibido, y lo guarda.
     @Transactional
     public Taller editarTaller(Taller tallerActualizado) { 
-        System.out.println(" [TALLER SERVICE] Iniciando edición de taller con ID: " + tallerActualizado.getId());
-        // 1. Verifica si el taller existe, si no, lanza una excepción.
+        System.out.println("🔵 [TALLER SERVICE] Iniciando edición de taller con ID: " + tallerActualizado.getId());
+        
         Optional<Taller> tallerOpt = tallerRepository.findById(tallerActualizado.getId());
         
         if (tallerOpt.isEmpty()) {
-            System.out.println(" [TALLER SERVICE ERROR] Taller no encontrado con ID: " + tallerActualizado.getId());
+            System.out.println("❌ [TALLER SERVICE ERROR] Taller no encontrado con ID: " + tallerActualizado.getId());
             throw new RuntimeException("Taller con ID " + tallerActualizado.getId() + " no encontrado.");
         }
         
         Taller tallerExistente = tallerOpt.get();
-        System.out.println(" [TALLER SERVICE] Taller existente encontrado.");
+        System.out.println("✔️ [TALLER SERVICE] Taller existente encontrado: " + tallerExistente.getNombre());
         
-        // 2. Actualiza los campos principales del taller existente.
-        tallerExistente.setNombre(tallerActualizado.getNombre());
-        tallerExistente.setDescripcion(tallerActualizado.getDescripcion());
-        tallerExistente.setDuracionSemanas(tallerActualizado.getDuracionSemanas());
-        tallerExistente.setClasesPorSemana(tallerActualizado.getClasesPorSemana());
-        tallerExistente.setImagenTaller(tallerActualizado.getImagenTaller());
-        tallerExistente.setImagenInicio(tallerActualizado.getImagenInicio());
-        tallerExistente.setPrecio(tallerActualizado.getPrecio());
+        if (tallerActualizado.getNombre() != null && !tallerActualizado.getNombre().trim().isEmpty()) {
+            tallerExistente.setNombre(tallerActualizado.getNombre());
+        }
+        
+        if (tallerActualizado.getDescripcion() != null && !tallerActualizado.getDescripcion().trim().isEmpty()) {
+            tallerExistente.setDescripcion(tallerActualizado.getDescripcion());
+        }
+        
+        if (tallerActualizado.getDuracionSemanas() != null && tallerActualizado.getDuracionSemanas() > 0) {
+            tallerExistente.setDuracionSemanas(tallerActualizado.getDuracionSemanas());
+        }
+        
+        if (tallerActualizado.getClasesPorSemana() != null && tallerActualizado.getClasesPorSemana() > 0) {
+            tallerExistente.setClasesPorSemana(tallerActualizado.getClasesPorSemana());
+        }
+        
+        if (tallerActualizado.getImagenTaller() != null) {
+            tallerExistente.setImagenTaller(tallerActualizado.getImagenTaller());
+        }
+        
+        if (tallerActualizado.getImagenInicio() != null) {
+            tallerExistente.setImagenInicio(tallerActualizado.getImagenInicio());
+        }
+        
+        if (tallerActualizado.getPrecio() != null) {
+            tallerExistente.setPrecio(tallerActualizado.getPrecio());
+        }
+        
         tallerExistente.setActivo(tallerActualizado.isActivo());
         
-        // 3. Actualiza el campo temas.
-        tallerExistente.setTemas(tallerActualizado.getTemas());
-        System.out.println(" [TALLER SERVICE] Campos del taller actualizados.");
+        if (tallerActualizado.getTemas() != null) {
+            tallerExistente.setTemas(tallerActualizado.getTemas());
+        }
+        
+        System.out.println("📝 [TALLER SERVICE] Campos del taller actualizados");
+        System.out.println("🔍 [TALLER SERVICE] Activo: " + tallerActualizado.isActivo());
 
-        // 4. Guarda y retorna el taller actualizado.
         Taller updatedTaller = tallerRepository.save(tallerExistente);
-        System.out.println(" [TALLER SERVICE SUCCESS] Taller con ID " + updatedTaller.getId() + " actualizado y guardado.");
+        System.out.println("✅ [TALLER SERVICE SUCCESS] Taller ID " + updatedTaller.getId() + " actualizado y guardado.");
         return updatedTaller;
     }
     
-    // 1. Busca un Taller por ID y retorna el resultado, o lanza una excepción si no lo encuentra.
+    // ✅ CORREGIDO: Asegurar carga de horarios
     public Taller obtenerTallerPorId(Long tallerId) {
-        System.out.println(" [TALLER SERVICE] Buscando taller por ID para obtener: " + tallerId);
-        return tallerRepository.findById(tallerId)
-            .orElseThrow(() -> new RuntimeException("Taller con ID " + tallerId + " no encontrado."));
+        System.out.println("🔍 [TALLER SERVICE] Buscando taller por ID: " + tallerId);
+        Taller taller = tallerRepository.findById(tallerId)
+            .orElseThrow(() -> {
+                System.out.println("❌ [TALLER SERVICE ERROR] Taller con ID " + tallerId + " no encontrado.");
+                return new RuntimeException("Taller con ID " + tallerId + " no encontrado.");
+            });
+        
+        // Forzar carga de horarios
+        if (taller.getHorarios() != null) {
+            taller.getHorarios().size();
+        }
+        
+        System.out.println("✅ [TALLER SERVICE] Taller encontrado: " + taller.getNombre());
+        return taller;
+    }
+    
+    @Transactional
+    public void eliminarTaller(Long tallerId) {
+        System.out.println("🔵 [TALLER SERVICE] Iniciando eliminación de taller con ID: " + tallerId);
+        
+        if (!tallerRepository.existsById(tallerId)) {
+            System.out.println("❌ [TALLER SERVICE ERROR] Taller no encontrado con ID: " + tallerId);
+            throw new RuntimeException("Taller con ID " + tallerId + " no encontrado.");
+        }
+        
+        tallerRepository.deleteById(tallerId);
+        System.out.println("✅ [TALLER SERVICE SUCCESS] Taller ID " + tallerId + " eliminado exitosamente.");
     }
 }

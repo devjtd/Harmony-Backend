@@ -1,8 +1,12 @@
 package com.harmony.sistema.repository;
 
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import com.harmony.sistema.model.Profesor;
 import com.harmony.sistema.model.User;
 
@@ -13,4 +17,8 @@ public interface ProfesorRepository extends JpaRepository<Profesor, Long> {
 
     // Busca un profesor por su nombre completo.
     Optional<Profesor> findByNombreCompleto(String nombreCompleto);
+
+    // NUEVO: Busca un profesor por el email de su User asociado.
+    @Query("SELECT p FROM Profesor p JOIN p.user u WHERE u.email = :email")
+    Optional<Profesor> findByUserEmail(@Param("email") String email);
 }

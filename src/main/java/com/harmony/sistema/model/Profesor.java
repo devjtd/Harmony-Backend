@@ -44,6 +44,6 @@ public class Profesor {
     private User user;
 
     @OneToMany(mappedBy = "profesor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "profesor-horarios")
     private List<Horario> horariosImpartidos;
 }

@@ -1,24 +1,26 @@
 package com.harmony.sistema.dto;
 
-import java.util.List;
+import java.util.Map;
 
 public class ClienteRegistroDTO {
-
     private String nombreCompleto;
     private String correo;
     private String telefono;
-    private List<Long> talleresSeleccionados;
     
-    // CONSTRUCTOR REQUERIDO PARA RESOLVER EL ERROR INICIAL
+    // CAMBIO: Ahora es un Map<Long, Long> donde:
+    // Key = tallerId, Value = horarioId
+    private Map<Long, Long> talleresSeleccionados;
+
+    // Constructores
+    public ClienteRegistroDTO() {}
+
     public ClienteRegistroDTO(String nombreCompleto, String correo, String telefono) {
         this.nombreCompleto = nombreCompleto;
         this.correo = correo;
         this.telefono = telefono;
     }
 
-    public ClienteRegistroDTO() {
-    }
-
+    // Getters y Setters
     public String getNombreCompleto() {
         return nombreCompleto;
     }
@@ -43,11 +45,11 @@ public class ClienteRegistroDTO {
         this.telefono = telefono;
     }
 
-    public List<Long> getTalleresSeleccionados() {
+    public Map<Long, Long> getTalleresSeleccionados() {
         return talleresSeleccionados;
     }
 
-    public void setTalleresSeleccionados(List<Long> talleresSeleccionados) {
+    public void setTalleresSeleccionados(Map<Long, Long> talleresSeleccionados) {
         this.talleresSeleccionados = talleresSeleccionados;
     }
 }

@@ -1,19 +1,30 @@
-package com.harmony.sistema.config; // ⬅️ Asegúrate de que el paquete exista y sea escaneado
+package com.harmony.sistema.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration // ⬅️ ¡CRUCIAL! Marca la clase como configuración de Spring.
-public class CorsConfig implements WebMvcConfigurer { // ⬅️ Interfaz necesaria para CORS global
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // **ESTA LÍNEA ES LA CLAVE:** Le dice a Spring que acepte peticiones desde Angular (4200)
-        registry.addMapping("/**") // Aplica a todas las rutas de la API
-                .allowedOrigins("http://localhost:4200") // ⬅️ ¡El origen de Angular!
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") 
-                .allowedHeaders("*") 
-                .allowCredentials(true); 
+        System.out.println("🔧 [CORS CONFIG] Configurando CORS para Angular");
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:4200")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+        System.out.println("✅ [CORS CONFIG] CORS configurado correctamente");
     }
+
+    /**
+     * ✅ SIMPLIFICACIÓN: Se eliminó extendMessageConverters
+     * 
+     * ¿Por qué? Spring Boot 3.x maneja automáticamente los conversores JSON
+     * y configurarlos manualmente causa conflictos con el Content-Type.
+     * 
+     * Dejamos que Spring maneje esto por defecto, que es lo correcto.
+     */
 }

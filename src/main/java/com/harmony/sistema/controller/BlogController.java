@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,4 +12,4 @@ public class BlogController {
         System.out.println(" [REQUEST] Mapeando solicitud GET a /blog. Retornando vista 'blog'.");
         return "blog";
     }
-}
+}*/

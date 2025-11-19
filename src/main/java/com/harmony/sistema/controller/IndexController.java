@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import java.util.List;
 
@@ -29,4 +29,4 @@ public class IndexController {
         System.out.println(" [VIEW] Retornando vista 'index'.");
         return "index";
     }
-}
+}*/

@@ -31,11 +31,11 @@ public class Inscripcion {
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    @JsonBackReference
+    @JsonBackReference(value = "cliente-inscripciones")
     private Cliente cliente;
 
     @ManyToOne
     @JoinColumn(name = "horario_id")
-    @JsonBackReference
+    @JsonBackReference(value = "horario-inscripciones")
     private Horario horario;
 }

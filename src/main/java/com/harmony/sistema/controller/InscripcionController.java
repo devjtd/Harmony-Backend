@@ -1,4 +1,4 @@
-package com.harmony.sistema.controller;
+/*package com.harmony.sistema.controller;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class InscripcionController {
     /**
      * Procesa el formulario de inscripción, creando la entidad User, Cliente y los registros de Inscripción.
      * Utiliza RedirectAttributes para evitar que los datos de la URL sean visibles en la redirección.
-     */
+    
     @PostMapping("/confirmacion")
     public String procesarInscripcion(
             InscripcionFormDTO dto,
@@ -121,7 +121,7 @@ public class InscripcionController {
      * Muestra la página de confirmación.
      * Los datos 'correo' y 'contrasena' llegan aquí automáticamente en el 'Model'
      * si la solicitud fue redirigida desde el POST mediante Flash Attributes.
-     */
+     *//*
     @GetMapping("/confirmacion")
     public String mostrarConfirmacion(Model model) {
         // Verifica si los atributos flash existen. Si no existen, significa que el usuario
@@ -133,4 +133,4 @@ public class InscripcionController {
         System.out.println(" [REQUEST] Solicitud GET a /confirmacion con Flash Attributes. Mostrando vista.");
         return "confirmacion";
     }
-}
+}*/

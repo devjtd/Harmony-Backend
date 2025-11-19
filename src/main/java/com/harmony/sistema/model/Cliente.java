@@ -34,14 +34,15 @@ public class Cliente {
     private String telefono;
 
     // Relación con la entidad User para autenticación/login
-    // IMPORTANTE: Se elimina 'nullable = false' para permitir clientes sin User (temporales)
+    // IMPORTANTE: Se elimina 'nullable = false' para permitir clientes sin User
+    // (temporales)
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true) 
+    @JoinColumn(name = "user_id", unique = true)
     @JsonIgnore
     private User user;
 
     // Relación OneToMany: Un cliente puede tener muchas inscripciones diferentes.
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "cliente-inscripciones")
     private List<Inscripcion> inscripciones;
 }
