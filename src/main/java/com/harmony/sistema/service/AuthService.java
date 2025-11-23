@@ -36,6 +36,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     /**
      * Registra un nuevo usuario con el rol ROLE_CLIENTE por defecto.
@@ -170,5 +171,65 @@ public class AuthService {
                 .nombreCompleto(nombreCompleto)
                 .id(userId)
                 .build();
+    }
+
+    /**
+     * Genera un token de recuperación de contraseña para el email dado.
+     * Envia el token por correo.
+     */
+    @Transactional
+    public void forgotPassword(String email) {
+        System.out.println(" [AUTH SERVICE] ========================================");
+        System.out.println(" [AUTH SERVICE] Solicitud de recuperación para: " + email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Generar código de 6 dígitos
+        String code = String.format("%06d", new java.util.Random().nextInt(999999));
+
+        // Establecer expiración (15 minutos)
+        user.setResetToken(code);
+        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusMinutes(15));
+
+        userRepository.save(user);
+
+        System.out.println(" [AUTH SERVICE] Código generado: " + code);
+
+        // Enviar correo
+        String asunto = "Recuperación de Contraseña - Harmony";
+        String cuerpo = "Hola,\n\nHas solicitado restablecer tu contraseña.\n" +
+                "Tu código de verificación es: " + code + "\n\n" +
+                "Este código expira en 15 minutos.\n\n" +
+                "Si no solicitaste esto, ignora este mensaje.";
+
+        emailService.enviarCorreo(email, asunto, cuerpo);
+
+        System.out.println(" [AUTH SERVICE] ========================================");
+    }
+
+    /**
+     * Restablece la contraseña usando el token de recuperación.
+     */
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        System.out.println(" [AUTH SERVICE] ========================================");
+        System.out.println(" [AUTH SERVICE] Restableciendo contraseña con token: " + token);
+
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido"));
+
+        if (user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+            throw new RuntimeException("El token ha expirado");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+
+        userRepository.save(user);
+
+        System.out.println(" [AUTH SERVICE] Contraseña actualizada exitosamente");
+        System.out.println(" [AUTH SERVICE] ========================================");
     }
 }

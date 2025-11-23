@@ -16,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Consulta todos los usuarios que tienen el rol 'PROFESOR'.
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'PROFESOR'")
     List<User> findProfesores();
+
+    // Busca un usuario por su token de recuperación
+    Optional<User> findByResetToken(String resetToken);
 }

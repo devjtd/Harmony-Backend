@@ -36,19 +36,19 @@ public class AuthRestController {
         System.out.println("[AUTH REST] POST /api/auth/register");
         System.out.println("[AUTH REST] Email a registrar: " + request.getEmail());
         System.out.println("========================================");
-        
+
         try {
             AuthResponse response = authService.register(request);
-            
+
             System.out.println("[AUTH REST SUCCESS] Usuario registrado exitosamente");
             System.out.println("[AUTH REST] Token JWT generado y enviado");
-            
+
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            
+
         } catch (Exception e) {
             System.err.println("[AUTH REST ERROR] Error en registro: " + e.getMessage());
             e.printStackTrace();
-            
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
@@ -65,32 +65,32 @@ public class AuthRestController {
         System.out.println("[AUTH REST] POST /api/auth/login");
         System.out.println("[AUTH REST] Email de login: " + request.getEmail());
         System.out.println("========================================");
-        
+
         try {
             // Llamar al servicio de autenticación
             AuthResponse response = authService.login(request);
-            
+
             System.out.println("[AUTH REST SUCCESS] Login exitoso para: " + request.getEmail());
             System.out.println("[AUTH REST] Token JWT generado");
             System.out.println("[AUTH REST] Rol del usuario: " + response.getClass().getSimpleName());
             System.out.println("========================================");
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (BadCredentialsException e) {
             System.err.println("[AUTH REST ERROR] Credenciales inválidas para: " + request.getEmail());
             System.err.println("[AUTH REST ERROR] Mensaje: " + e.getMessage());
             System.out.println("========================================");
-            
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            
+
         } catch (Exception e) {
             System.err.println("[AUTH REST ERROR] Error inesperado en login");
             System.err.println("[AUTH REST ERROR] Usuario: " + request.getEmail());
             System.err.println("[AUTH REST ERROR] Mensaje: " + e.getMessage());
             e.printStackTrace();
             System.out.println("========================================");
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -114,5 +114,47 @@ public class AuthRestController {
         System.out.println("[AUTH REST] POST /api/auth/logout");
         System.out.println("[AUTH REST] Sesión cerrada (token invalidado en cliente)");
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Endpoint para solicitar recuperación de contraseña.
+     * POST /api/auth/forgot-password
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<java.util.Map<String, String>> forgotPassword(
+            @RequestBody java.util.Map<String, String> request) {
+        String email = request.get("email");
+        System.out.println("[AUTH REST] POST /api/auth/forgot-password - Email: " + email);
+
+        try {
+            authService.forgotPassword(email);
+            return ResponseEntity
+                    .ok(java.util.Map.of("message", "Si el correo existe, se ha enviado un código de recuperación."));
+        } catch (Exception e) {
+            // Por seguridad, no deberíamos decir si el usuario existe o no, pero para debug
+            // lo dejamos así por ahora
+            // O retornamos el mismo mensaje de éxito para evitar enumeración de usuarios
+            return ResponseEntity
+                    .ok(java.util.Map.of("message", "Si el correo existe, se ha enviado un código de recuperación."));
+        }
+    }
+
+    /**
+     * Endpoint para restablecer la contraseña.
+     * POST /api/auth/reset-password
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<java.util.Map<String, String>> resetPassword(
+            @RequestBody java.util.Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+        System.out.println("[AUTH REST] POST /api/auth/reset-password");
+
+        try {
+            authService.resetPassword(token, newPassword);
+            return ResponseEntity.ok(java.util.Map.of("message", "Contraseña actualizada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
     }
 }
