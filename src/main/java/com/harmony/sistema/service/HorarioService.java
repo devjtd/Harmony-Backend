@@ -22,10 +22,10 @@ public class HorarioService {
     private HorarioRepository horarioRepository;
 
     @Autowired
-    private TallerService tallerService; 
-    
+    private TallerService tallerService;
+
     @Autowired
-    private ProfesorService profesorService; 
+    private ProfesorService profesorService;
 
     // ✅ CORREGIDO: Asegurar que el profesor esté cargado
     public List<Horario> getHorariosByProfesorEmail(String profesorEmail) {
@@ -52,12 +52,13 @@ public class HorarioService {
         });
         return horarios;
     }
-    
+
     // ✅ CORREGIDO: Asegurar que el profesor esté cargado
     public List<Horario> getHorariosAbiertosByTallerId(Long tallerId) {
-        System.out.println("📋 [HORARIO SERVICE] Buscando horarios abiertos (futuros y con vacantes) para Taller ID: " + tallerId);
+        System.out.println(
+                "📋 [HORARIO SERVICE] Buscando horarios abiertos (futuros y con vacantes) para Taller ID: " + tallerId);
         List<Horario> horarios = horarioRepository.findByTallerIdAndFechaInicioAfterAndVacantesDisponiblesGreaterThan(
-            tallerId, LocalDate.now(), 0);
+                tallerId, LocalDate.now(), 0);
         // Forzar carga del profesor y taller
         horarios.forEach(h -> {
             if (h.getProfesor() != null) {
@@ -87,7 +88,7 @@ public class HorarioService {
     public Horario getHorarioById(Long id) {
         System.out.println("📋 [HORARIO SERVICE] Buscando horario por ID: " + id);
         Horario horario = horarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + id));
         // Forzar carga del profesor
         if (horario.getProfesor() != null) {
             horario.getProfesor().getNombreCompleto();
@@ -96,12 +97,12 @@ public class HorarioService {
     }
 
     @Transactional
-    public Horario crearHorario(Long tallerId, Long profesorId, String diasDeClase, 
-                                 LocalTime horaInicio, LocalTime horaFin, LocalDate fechaInicio, 
-                                 int vacantesDisponibles) {
+    public Horario crearHorario(Long tallerId, Long profesorId, String diasDeClase,
+            LocalTime horaInicio, LocalTime horaFin, LocalDate fechaInicio,
+            int vacantesDisponibles) {
         System.out.println("📋 [HORARIO SERVICE] Iniciando creación de nuevo horario.");
-        Taller taller = tallerService.obtenerTallerPorId(tallerId); 
-        Profesor profesor = profesorService.obtenerProfesorPorId(profesorId); 
+        Taller taller = tallerService.obtenerTallerPorId(tallerId);
+        Profesor profesor = profesorService.obtenerProfesorPorId(profesorId);
 
         if (taller == null) {
             System.out.println("❌ [HORARIO SERVICE ERROR] Taller no encontrado con ID: " + tallerId);
@@ -114,40 +115,40 @@ public class HorarioService {
         System.out.println("✅ [HORARIO SERVICE] Taller y Profesor validados.");
 
         Optional<Horario> conflicto = horarioRepository.findByTallerAndProfesorAndDiasDeClaseAndHoraInicioAndHoraFin(
-            taller, profesor, diasDeClase, horaInicio, horaFin);
+                taller, profesor, diasDeClase, horaInicio, horaFin);
 
         if (conflicto.isPresent()) {
             System.out.println("❌ [HORARIO SERVICE ERROR] Conflicto de unicidad detectado.");
             throw new RuntimeException("Ya existe un horario idéntico asignado a este profesor y taller.");
         }
         System.out.println("✅ [HORARIO SERVICE] Validación de unicidad completada (no hay conflicto).");
-        
+
         Horario nuevoHorario = Horario.builder()
-            .taller(taller)
-            .profesor(profesor)
-            .diasDeClase(diasDeClase)
-            .horaInicio(horaInicio)
-            .horaFin(horaFin)
-            .fechaInicio(fechaInicio)
-            .vacantesDisponibles(vacantesDisponibles)
-            .build();
-            
+                .taller(taller)
+                .profesor(profesor)
+                .diasDeClase(diasDeClase)
+                .horaInicio(horaInicio)
+                .horaFin(horaFin)
+                .fechaInicio(fechaInicio)
+                .vacantesDisponibles(vacantesDisponibles)
+                .build();
+
         Horario savedHorario = horarioRepository.save(nuevoHorario);
         System.out.println("✅ [HORARIO SERVICE SUCCESS] Horario creado y guardado con ID: " + savedHorario.getId());
         return savedHorario;
     }
-    
+
     @Transactional
-    public Horario editarHorario(Long horarioId, Long profesorId, String diasDeClase, 
-                                 LocalTime horaInicio, LocalTime horaFin, LocalDate fechaInicio, 
-                                 int vacantesDisponibles) {
+    public Horario editarHorario(Long horarioId, Long profesorId, String diasDeClase,
+            LocalTime horaInicio, LocalTime horaFin, LocalDate fechaInicio,
+            int vacantesDisponibles) {
         System.out.println("📋 [HORARIO SERVICE] Iniciando edición de horario con ID: " + horarioId);
 
         Horario horario = horarioRepository.findById(horarioId)
-            .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + horarioId));
+                .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + horarioId));
         System.out.println("✅ [HORARIO SERVICE] Horario encontrado.");
-            
-        Profesor nuevoProfesor = profesorService.obtenerProfesorPorId(profesorId); 
+
+        Profesor nuevoProfesor = profesorService.obtenerProfesorPorId(profesorId);
 
         if (nuevoProfesor == null) {
             System.out.println("❌ [HORARIO SERVICE ERROR] Profesor no encontrado con ID: " + profesorId);
@@ -160,11 +161,12 @@ public class HorarioService {
         horario.setHoraInicio(horaInicio);
         horario.setHoraFin(horaFin);
         horario.setFechaInicio(fechaInicio);
-        horario.setVacantesDisponibles(vacantesDisponibles); 
+        horario.setVacantesDisponibles(vacantesDisponibles);
         System.out.println("📝 [HORARIO SERVICE] Campos del horario actualizados.");
 
         Horario updatedHorario = horarioRepository.save(horario);
-        System.out.println("✅ [HORARIO SERVICE SUCCESS] Horario ID " + horarioId + " modificado y guardado exitosamente.");
+        System.out.println(
+                "✅ [HORARIO SERVICE SUCCESS] Horario ID " + horarioId + " modificado y guardado exitosamente.");
         return updatedHorario;
     }
 
@@ -175,7 +177,7 @@ public class HorarioService {
             System.out.println("❌ [HORARIO SERVICE ERROR] Horario no encontrado con ID: " + horarioId);
             throw new RuntimeException("Horario no encontrado con ID: " + horarioId);
         }
-        
+
         horarioRepository.deleteById(horarioId);
         System.out.println("✅ [HORARIO SERVICE SUCCESS] Horario ID " + horarioId + " eliminado exitosamente.");
     }

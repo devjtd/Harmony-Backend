@@ -2,7 +2,7 @@ package com.harmony.sistema.service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.Optional; 
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +13,10 @@ import com.harmony.sistema.model.Cliente;
 import com.harmony.sistema.model.User;
 import com.harmony.sistema.repository.ClienteRepository;
 import com.harmony.sistema.repository.UserRepository;
+import com.harmony.sistema.repository.InscripcionRepository;
+import com.harmony.sistema.repository.HorarioRepository;
+import com.harmony.sistema.model.Inscripcion;
+import com.harmony.sistema.model.Horario;
 
 import jakarta.transaction.Transactional;
 
@@ -26,32 +30,38 @@ public class ClienteService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; 
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private EmailService emailService; 
+    private EmailService emailService;
+
+    @Autowired
+    private InscripcionRepository inscripcionRepository;
+
+    @Autowired
+    private HorarioRepository horarioRepository;
 
     // --- MÉTODOS DE BÚSQUEDA ---
-    
+
     // Verifica si un User existe con ese email
-    public Optional<User> encontrarUserPorEmail(String email) { // MODIFICADO para devolver Optional
+    public Optional<User> encontrarUserPorEmail(String email) {
         return userRepository.findByEmail(email);
     }
-    
+
     // Encuentra el Cliente asociado a un User
     public Cliente encontrarClientePorEmail(String email) {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Usuario con email " + email + " no encontrado."));
-            
+                .orElseThrow(() -> new RuntimeException("Usuario con email " + email + " no encontrado."));
+
         return clienteRepository.findByUser(user)
-            .orElseThrow(() -> new RuntimeException("Cliente asociado al User " + email + " no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Cliente asociado al User " + email + " no encontrado."));
     }
-    
+
     // Encuentra un cliente por correo directamente en la tabla Cliente
     public Optional<Cliente> encontrarClientePorCorreo(String correo) {
-        return clienteRepository.findByCorreo(correo); 
+        return clienteRepository.findByCorreo(correo);
     }
-    
+
     // Obtiene y retorna una lista de todos los clientes en la base de datos.
     public List<Cliente> listarClientes() {
         System.out.println(" [CLIENTE SERVICE] Iniciando listado de todos los clientes.");
@@ -60,16 +70,16 @@ public class ClienteService {
         return clientes;
     }
 
-    // **MÉTODO MODIFICADO (ANTES registrarCliente): SOLO CREA CLIENTE, SIN USER NI CORREO**
+    // SOLO CREA CLIENTE, SIN USER NI CORREO
     public Cliente crearClienteTemporal(ClienteRegistroDTO dto) {
         System.out.println(" [CLIENTE SERVICE] Iniciando creación de Cliente TEMPORAL.");
 
         // 1. Crea y guarda la entidad Cliente (sin User)
         Cliente cliente = Cliente.builder()
                 .nombreCompleto(dto.getNombreCompleto())
-                .correo(dto.getCorreo()) 
+                .correo(dto.getCorreo())
                 .telefono(dto.getTelefono())
-                .user(null) 
+                .user(null)
                 .build();
         clienteRepository.save(cliente);
         System.out.println(" [CLIENTE SERVICE] Entidad Cliente TEMPORAL (" + cliente.getCorreo()
@@ -89,7 +99,7 @@ public class ClienteService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + clienteId));
 
         User user = cliente.getUser();
-        
+
         // 2. Actualiza los campos del Cliente.
         cliente.setNombreCompleto(nuevoNombre);
         cliente.setTelefono(nuevoTelefono);
@@ -134,7 +144,7 @@ public class ClienteService {
             System.out.println(
                     " [CLIENTE SERVICE] Email no cambiado. Solo actualizando datos del cliente y guardando User.");
         }
-        
+
         // 5. Guarda el Cliente actualizado.
         clienteRepository.save(cliente);
         System.out.println(" [CLIENTE SERVICE] Cliente ID " + clienteId + " actualizado exitosamente.");
@@ -142,30 +152,57 @@ public class ClienteService {
         return cliente;
     }
 
-    // Elimina de forma transaccional el registro de Cliente y su User asociado de
-    // la base de datos.
+    // Elimina de forma transaccional el User asociado y las inscripciones,
+    // pero MANTIENE el registro del Cliente. Restaura las vacantes.
     @Transactional
     public void eliminarCliente(Long clienteId) {
-        System.out.println(" [CLIENTE SERVICE] Iniciando eliminación transaccional para Cliente ID: " + clienteId);
-        // 1. Busca el Cliente y su User asociado.
+        System.out.println(" [CLIENTE SERVICE] Iniciando proceso de BAJA para Cliente ID: " + clienteId);
+
+        // 1. Busca el Cliente
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + clienteId));
 
-        User user = cliente.getUser();
-        if (user == null) {
-            clienteRepository.delete(cliente);
-            System.out.println(" [CLIENTE SERVICE] Cliente sin User asociado. Solo eliminando cliente.");
-            throw new RuntimeException("El cliente fue eliminado, pero no tenía un usuario asociado (User).");
+        // 2. Gestionar Inscripciones y Vacantes
+        List<Inscripcion> inscripciones = cliente.getInscripciones();
+        if (inscripciones != null && !inscripciones.isEmpty()) {
+            System.out.println(" [CLIENTE SERVICE] Procesando " + inscripciones.size()
+                    + " inscripciones para devolución de vacantes.");
+
+            for (Inscripcion inscripcion : inscripciones) {
+                Horario horario = inscripcion.getHorario();
+                if (horario != null) {
+                    int vacantesActuales = horario.getVacantesDisponibles();
+                    horario.setVacantesDisponibles(vacantesActuales + 1);
+                    horarioRepository.save(horario);
+                    System.out.println("   -> Vacante restaurada en Horario ID " + horario.getId()
+                            + ". Nuevas vacantes: " + (vacantesActuales + 1));
+                }
+            }
+            // Eliminar las inscripciones de la base de datos
+            inscripcionRepository.deleteAll(inscripciones);
+            // Limpiar la lista en memoria del objeto cliente para evitar inconsistencias si
+            // se sigue usando
+            cliente.getInscripciones().clear();
+            System.out.println(" [CLIENTE SERVICE] Inscripciones eliminadas.");
         }
 
-        // 2. Elimina el Cliente (las inscripciones se eliminan en cascada si la
-        // relación lo permite).
-        clienteRepository.delete(cliente);
-        System.out.println(" [CLIENTE SERVICE] Cliente ID " + clienteId + " eliminado.");
+        // 3. Eliminar User asociado (Acceso al sistema)
+        User user = cliente.getUser();
+        if (user != null) {
+            // Desvincular el User del Cliente antes de eliminarlo
+            cliente.setUser(null);
+            clienteRepository.save(cliente); // Guardar cliente sin usuario
 
-        // 3. Elimina el User asociado.
-        userRepository.delete(user);
-        System.out.println(" [CLIENTE SERVICE] User asociado eliminado. Eliminación completada.");
+            userRepository.delete(user);
+            System.out
+                    .println(" [CLIENTE SERVICE] Usuario (User) eliminado. El cliente ya no tiene acceso al sistema.");
+        } else {
+            System.out.println(" [CLIENTE SERVICE] El cliente no tenía usuario asociado.");
+        }
+
+        // 4. El Cliente permanece en la base de datos (Histórico)
+        System.out.println(" [CLIENTE SERVICE] Proceso de BAJA completado. El registro del cliente ID " + clienteId
+                + " se ha conservado.");
     }
 
     // Genera una cadena de contraseña temporal única.

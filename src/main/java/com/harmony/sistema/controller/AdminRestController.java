@@ -297,6 +297,69 @@ public class AdminRestController {
         }
     }
 
+    /**
+     * POST: Agrega una inscripción a un cliente existente
+     */
+    @PostMapping("/clientes/{id}/inscripciones")
+    @SuppressWarnings("CallToPrintStackTrace")
+    public ResponseEntity<Map<String, Object>> agregarInscripcion(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> payload) {
+
+        System.out.println("🔵 [API ADMIN] POST /api/admin/clientes/" + id + "/inscripciones - Agregando inscripción");
+        Long horarioId = payload.get("horarioId");
+        System.out.println("📅 [API ADMIN] Horario ID: " + horarioId);
+
+        try {
+            inscripcionService.inscribirClienteExistente(id, horarioId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Inscripción agregada exitosamente");
+
+            System.out.println("✅ [API ADMIN SUCCESS] Inscripción agregada al cliente: " + id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("❌ [API ADMIN ERROR] Error al agregar inscripción: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error al agregar inscripción: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+
+    /**
+     * DELETE: Elimina una inscripción específica de un cliente
+     */
+    @DeleteMapping("/clientes/{id}/inscripciones/{horarioId}")
+    @SuppressWarnings("CallToPrintStackTrace")
+    public ResponseEntity<Map<String, Object>> eliminarInscripcion(
+            @PathVariable Long id,
+            @PathVariable Long horarioId) {
+
+        System.out.println("🔵 [API ADMIN] DELETE /api/admin/clientes/" + id + "/inscripciones/" + horarioId
+                + " - Eliminando inscripción");
+
+        try {
+            inscripcionService.eliminarInscripcion(id, horarioId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Inscripción eliminada exitosamente");
+
+            System.out.println("✅ [API ADMIN SUCCESS] Inscripción eliminada del cliente: " + id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("❌ [API ADMIN ERROR] Error al eliminar inscripción: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error al eliminar inscripción: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+
     // ==================== PROFESORES ====================
 
     @GetMapping("/profesores")
@@ -511,7 +574,12 @@ public class AdminRestController {
         System.out.println("📝 [API ADMIN] Datos recibidos para actualización:");
         System.out.println("   - Taller ID: " + id);
         System.out.println("   - Nuevo Nombre: " + tallerActualizado.getNombre());
-        System.out.println("   - Nueva Descripción: " + (tallerActualizado.getDescripcion() != null ? tallerActualizado.getDescripcion().substring(0, Math.min(50, tallerActualizado.getDescripcion().length())) + "..." : "null"));
+        System.out
+                .println(
+                        "   - Nueva Descripción: " + (tallerActualizado.getDescripcion() != null
+                                ? tallerActualizado.getDescripcion().substring(0,
+                                        Math.min(50, tallerActualizado.getDescripcion().length())) + "..."
+                                : "null"));
         System.out.println("   - Nuevo Precio: " + tallerActualizado.getPrecio());
         System.out.println("   - Nueva Imagen Taller: " + tallerActualizado.getImagenTaller());
         System.out.println("   - Nueva Imagen Inicio: " + tallerActualizado.getImagenInicio());

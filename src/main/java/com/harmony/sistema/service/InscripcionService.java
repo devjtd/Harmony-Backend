@@ -1,20 +1,5 @@
 package com.harmony.sistema.service;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.harmony.sistema.dto.ClienteRegistroDTO;
-import com.harmony.sistema.dto.CredencialesDTO;
-import com.harmony.sistema.dto.DatosPersonalesFormDTO;
-import com.harmony.sistema.dto.InscripcionFormDTO;
-import com.harmony.sistema.model.Cliente;
 import com.harmony.sistema.model.Horario;
 import com.harmony.sistema.model.Inscripcion;
 import com.harmony.sistema.model.Role;
@@ -24,6 +9,21 @@ import com.harmony.sistema.repository.HorarioRepository;
 import com.harmony.sistema.repository.InscripcionRepository;
 import com.harmony.sistema.repository.RoleRepository;
 import com.harmony.sistema.repository.UserRepository;
+import com.harmony.sistema.dto.ClienteRegistroDTO;
+import com.harmony.sistema.dto.CredencialesDTO;
+import com.harmony.sistema.dto.DatosPersonalesFormDTO;
+import com.harmony.sistema.dto.InscripcionFormDTO;
+import com.harmony.sistema.model.Cliente;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class InscripcionService {
@@ -216,5 +216,118 @@ public class InscripcionService {
                                 " [INSCRIPCION SERVICE SUCCESS] Proceso de inscripción completa finalizado.");
 
                 return new CredencialesDTO(dto.getEmail(), rawPassword);
+        }
+
+        // ==========================================
+        // NUEVOS MÉTODOS PARA GESTIÓN DE INSCRIPCIONES
+        // ==========================================
+
+        @Transactional
+        public void inscribirClienteExistente(Long clienteId, Long horarioId) {
+                System.out.println(" [INSCRIPCION SERVICE] Inscribiendo cliente existente ID: " + clienteId
+                                + " en horario ID: " + horarioId);
+
+                Cliente cliente = clienteRepository.findById(clienteId)
+                                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + clienteId));
+
+                Horario horario = horarioRepository.findById(horarioId)
+                                .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + horarioId));
+
+                // Validar si ya está inscrito en este horario
+                Optional<Inscripcion> inscripcionExistente = inscripcionRepository
+                                .findByClienteIdAndHorarioId(clienteId, horarioId);
+                if (inscripcionExistente.isPresent()) {
+                        throw new RuntimeException("El cliente ya está inscrito en este horario.");
+                }
+
+                // Validar vacantes
+                if (horario.getVacantesDisponibles() <= 0) {
+                        throw new RuntimeException("No hay vacantes disponibles en el horario seleccionado.");
+                }
+
+                Inscripcion inscripcion = new Inscripcion();
+                inscripcion.setCliente(cliente);
+                inscripcion.setHorario(horario);
+                inscripcion.setFechaInscripcion(LocalDate.now());
+                inscripcion.setPagado(true); // Asumimos pagado si lo agrega el admin
+
+                inscripcionRepository.save(inscripcion);
+
+                // Decrementar vacantes
+                horario.setVacantesDisponibles(horario.getVacantesDisponibles() - 1);
+                horarioRepository.save(horario);
+
+                System.out.println(" [INSCRIPCION SERVICE] Inscripción exitosa.");
+        }
+
+        @Transactional
+        public void eliminarInscripcion(Long clienteId, Long horarioId) {
+                System.out.println(" [INSCRIPCION SERVICE] Eliminando inscripción - Cliente ID: " + clienteId
+                                + ", Horario ID: " + horarioId);
+
+                Inscripcion inscripcion = inscripcionRepository.findByClienteIdAndHorarioId(clienteId, horarioId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Inscripción no encontrada para el cliente y horario especificados."));
+
+                Horario horario = inscripcion.getHorario();
+
+                inscripcionRepository.delete(inscripcion);
+
+                // Incrementar vacantes
+                horario.setVacantesDisponibles(horario.getVacantesDisponibles() + 1);
+                horarioRepository.save(horario);
+
+                System.out.println(" [INSCRIPCION SERVICE] Inscripción eliminada y vacante liberada.");
+        }
+
+        public void solicitarBaja(Long clienteId, Long horarioId, String motivo) {
+                System.out.println(" [INSCRIPCION SERVICE] Solicitud de baja - Cliente ID: " + clienteId
+                                + ", Horario ID: " + horarioId);
+
+                Cliente cliente = clienteRepository.findById(clienteId)
+                                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
+
+                Horario horario = horarioRepository.findById(horarioId)
+                                .orElseThrow(() -> new RuntimeException("Horario no encontrado."));
+
+                // Validar que la inscripción exista
+                inscripcionRepository.findByClienteIdAndHorarioId(clienteId, horarioId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "No se encontró una inscripción activa para este horario."));
+
+                String asunto = "Solicitud de Baja - " + cliente.getNombreCompleto();
+                String cuerpo = String.format("""
+                                Solicitud de Baja de Taller
+
+                                Cliente: %s
+                                Correo: %s
+                                Taller: %s
+                                Horario: %s
+
+                                Motivo de la solicitud:
+                                %s
+                                """,
+                                cliente.getNombreCompleto(),
+                                cliente.getCorreo(),
+                                horario.getTaller().getNombre(),
+                                horario.getDiasDeClase() + " " + horario.getHoraInicio() + "-" + horario.getHoraFin(),
+                                motivo);
+
+                // Enviar correo al admin (usando el email configurado en properties, aquí
+                // hardcodeado o inyectado si fuera necesario,
+                // pero usaremos el del cliente como remitente lógico en el cuerpo)
+                // Nota: Para simplificar, enviamos al admin definido en ContactoController o
+                // similar.
+                // Como EmailService es genérico, necesitamos el email del admin.
+                // Por ahora usaremos un log fuerte y si es posible inyectar el valor.
+
+                String adminEmail = "admin@harmony.com"; // Placeholder, idealmente desde properties
+
+                emailService.enviarCorreo(adminEmail, asunto, cuerpo);
+                System.out.println(" [INSCRIPCION SERVICE] Notificación de baja enviada al admin.");
+        }
+
+        public List<Inscripcion> obtenerInscripcionesPorCliente(Long clienteId) {
+                return inscripcionRepository.findByClienteId(clienteId);
         }
 }
