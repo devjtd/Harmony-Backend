@@ -13,10 +13,12 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     // Busca un cliente por la entidad User asociada.
     Optional<Cliente> findByUser(User user);
 
-
     Optional<Cliente> findByCorreo(String correo);
 
     // NUEVO: Busca un cliente por el email de su User asociado.
     @Query("SELECT c FROM Cliente c JOIN c.user u WHERE u.email = :email")
     Optional<Cliente> findByUserEmail(@Param("email") String email);
+
+    // Soluciona el error en InscripcionService
+    Optional<Cliente> findByUserId(Long userId);
 }

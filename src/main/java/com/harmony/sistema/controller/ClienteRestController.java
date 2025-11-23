@@ -1,7 +1,7 @@
 package com.harmony.sistema.controller;
 
 import com.harmony.sistema.dto.CambioClaveRequest;
-import com.harmony.sistema.dto.HorarioClienteDTO; // Importado el nuevo DTO
+import com.harmony.sistema.dto.HorarioClienteDTO;
 import com.harmony.sistema.model.Cliente;
 import com.harmony.sistema.model.Horario;
 import com.harmony.sistema.model.User;
@@ -37,7 +37,6 @@ public class ClienteRestController {
     public ResponseEntity<List<HorarioClienteDTO>> getHorarios(Authentication authentication) {
         String email = authentication.getName();
 
-        // CORREGIDO: findByUserEmail ahora existe en ClienteRepository
         Cliente cliente = clienteRepository.findByUserEmail(email)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
@@ -55,6 +54,19 @@ public class ClienteRestController {
                     // Usamos los DTOs anidados
                     dto.setTaller(new HorarioClienteDTO.TallerSimpleDTO(h.getTaller().getNombre()));
                     dto.setProfesor(new HorarioClienteDTO.ProfesorSimpleDTO(h.getProfesor().getNombreCompleto()));
+
+                    // Mapear cancelaciones
+                    if (h.getCancelaciones() != null) {
+                        List<com.harmony.sistema.dto.ClaseCanceladaDTO> cancelacionesDTO = h.getCancelaciones().stream()
+                                .map(c -> new com.harmony.sistema.dto.ClaseCanceladaDTO(
+                                        c.getId(),
+                                        c.getFecha(),
+                                        c.getMotivo(),
+                                        c.getAccion()))
+                                .collect(Collectors.toList());
+                        dto.setCancelaciones(cancelacionesDTO);
+                    }
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -67,7 +79,7 @@ public class ClienteRestController {
      */
     @PostMapping("/cambiar-clave")
     public ResponseEntity<String> cambiarClave(
-            @RequestBody CambioClaveRequest request, // Usando el DTO externo
+            @RequestBody CambioClaveRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();

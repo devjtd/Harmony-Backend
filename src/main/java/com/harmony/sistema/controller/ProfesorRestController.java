@@ -35,24 +35,24 @@ public class ProfesorRestController {
     @GetMapping("/horarios")
     public ResponseEntity<List<HorarioProfesorDTO>> getHorarios(Authentication authentication) {
         String email = authentication.getName();
-        
+
         // CORREGIDO: findByUserEmail ahora existe en ProfesorRepository
         Profesor profesor = profesorRepository.findByUserEmail(email)
-            .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
 
         List<HorarioProfesorDTO> horarios = profesor.getHorariosImpartidos().stream() // Usamos getHorariosImpartidos
-            .map(h -> {
-                HorarioProfesorDTO dto = new HorarioProfesorDTO();
-                dto.setId(h.getId());
-                dto.setDiasDeClase(h.getDiasDeClase());
-                dto.setHoraInicio(h.getHoraInicio().toString());
-                dto.setHoraFin(h.getHoraFin().toString());
-                
-                // Usamos el DTO anidado
-                dto.setTaller(new HorarioProfesorDTO.TallerSimpleDTO(h.getTaller().getNombre()));
-                return dto;
-            })
-            .collect(Collectors.toList());
+                .map(h -> {
+                    HorarioProfesorDTO dto = new HorarioProfesorDTO();
+                    dto.setId(h.getId());
+                    dto.setDiasDeClase(h.getDiasDeClase());
+                    dto.setHoraInicio(h.getHoraInicio().toString());
+                    dto.setHoraFin(h.getHoraFin().toString());
+
+                    // Usamos el DTO anidado
+                    dto.setTaller(new HorarioProfesorDTO.TallerSimpleDTO(h.getTaller().getNombre()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(horarios);
     }
@@ -64,9 +64,9 @@ public class ProfesorRestController {
     public ResponseEntity<String> cambiarClave(
             @RequestBody CambioClaveRequest request, // Usando el DTO externo
             Authentication authentication) {
-        
+
         String email = authentication.getName();
-        
+
         if (!request.getNuevaContrasena().equals(request.getConfirmarContrasena())) {
             return ResponseEntity.badRequest().body("Las contraseñas no coinciden");
         }
@@ -76,11 +76,25 @@ public class ProfesorRestController {
         }
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         user.setPassword(passwordEncoder.encode(request.getNuevaContrasena()));
         userRepository.save(user);
 
         return ResponseEntity.ok("Contraseña cambiada exitosamente");
+    }
+
+    @Autowired
+    private com.harmony.sistema.service.ProfesorService profesorService;
+
+    @PostMapping("/cancelar-clase/{horarioId}")
+    public ResponseEntity<?> cancelarClase(@PathVariable Long horarioId,
+            @RequestBody com.harmony.sistema.model.ClaseCancelada claseCancelada) {
+        try {
+            com.harmony.sistema.model.ClaseCancelada saved = profesorService.cancelarClase(horarioId, claseCancelada);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

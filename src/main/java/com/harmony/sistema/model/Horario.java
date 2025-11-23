@@ -62,4 +62,8 @@ public class Horario {
     @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "horario-inscripciones")
     private List<Inscripcion> inscripciones;
+
+    @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "horario-cancelaciones")
+    private List<ClaseCancelada> cancelaciones;
 }

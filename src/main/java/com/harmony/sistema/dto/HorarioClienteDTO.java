@@ -1,6 +1,7 @@
 package com.harmony.sistema.dto;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class HorarioClienteDTO {
@@ -12,6 +13,7 @@ public class HorarioClienteDTO {
     private ProfesorSimpleDTO profesor;
     private Boolean finalizado;
     private String fechaFin;
+    private List<ClaseCanceladaDTO> cancelaciones;
 
     // DTOs Anidados
     @Data
