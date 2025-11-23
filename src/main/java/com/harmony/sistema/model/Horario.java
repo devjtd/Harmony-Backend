@@ -44,6 +44,11 @@ public class Horario {
 
     private int vacantesDisponibles;
 
+    @Builder.Default
+    private Boolean finalizado = false;
+
+    private LocalDate fechaFin;
+
     @ManyToOne
     @JoinColumn(name = "taller_id", nullable = false)
     @JsonBackReference(value = "taller-horarios")

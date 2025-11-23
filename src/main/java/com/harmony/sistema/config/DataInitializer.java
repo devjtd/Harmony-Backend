@@ -272,6 +272,9 @@ public class DataInitializer implements CommandLineRunner {
                 }
 
                 // 4. Si no existe, crea y configura la nueva entidad Horario.
+                long diasDuracion = (long) taller.getDuracionSemanas() * 7;
+                LocalDate fechaFinCalculada = fechaInicio.plusDays(diasDuracion);
+
                 Horario newHorario = Horario.builder()
                                 .taller(taller)
                                 .profesor(profesor)
@@ -279,6 +282,8 @@ public class DataInitializer implements CommandLineRunner {
                                 .horaInicio(inicio)
                                 .horaFin(fin)
                                 .fechaInicio(fechaInicio)
+                                .fechaFin(fechaFinCalculada)
+                                .finalizado(false)
                                 .vacantesDisponibles(vacantes)
                                 .build();
 
