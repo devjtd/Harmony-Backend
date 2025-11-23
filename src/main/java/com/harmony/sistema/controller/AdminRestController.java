@@ -83,6 +83,7 @@ public class AdminRestController {
 
                 // ✅ NUEVO: Incluir inscripciones con información detallada
                 List<Map<String, Object>> inscripcionesList = cliente.getInscripciones().stream()
+                        .filter(inscripcion -> !Boolean.TRUE.equals(inscripcion.getHorario().getFinalizado()))
                         .map(inscripcion -> {
                             Map<String, Object> inscripcionMap = new HashMap<>();
 

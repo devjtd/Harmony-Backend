@@ -49,6 +49,8 @@ public class ClienteRestController {
                     dto.setDiasDeClase(h.getDiasDeClase());
                     dto.setHoraInicio(h.getHoraInicio().toString());
                     dto.setHoraFin(h.getHoraFin().toString());
+                    dto.setFinalizado(h.getFinalizado());
+                    dto.setFechaFin(h.getFechaFin() != null ? h.getFechaFin().toString() : null);
 
                     // Usamos los DTOs anidados
                     dto.setTaller(new HorarioClienteDTO.TallerSimpleDTO(h.getTaller().getNombre()));

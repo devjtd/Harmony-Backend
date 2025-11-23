@@ -10,6 +10,8 @@ public class HorarioClienteDTO {
     private String horaFin;
     private TallerSimpleDTO taller;
     private ProfesorSimpleDTO profesor;
+    private Boolean finalizado;
+    private String fechaFin;
 
     // DTOs Anidados
     @Data
