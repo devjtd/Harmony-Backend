@@ -12,9 +12,10 @@ import com.harmony.sistema.service.ProfesorService;
 
 @RestController // ⬅️ IMPORTANTE: Devuelve JSON.
 @RequestMapping("/api/profesores") // ⬅️ Endpoint que Angular llamará.
-// 🚨 CRUCIAL PARA LA COMUNICACIÓN: Permite peticiones desde Angular (típicamente 4200)
-@CrossOrigin(origins = "http://localhost:4200") 
-public class ProfesoresRestController {
+// 🚨 CRUCIAL PARA LA COMUNICACIÓN: Permite peticiones desde Angular
+// (típicamente 4200)
+@CrossOrigin(origins = "http://localhost:4200")
+public class ProfesorPublicController {
 
     @Autowired
     private ProfesorService profesorService;
