@@ -25,7 +25,7 @@ public class IndexRestController {
      */
     @GetMapping("/activos")
     public List<Taller> getTalleresActivos() {
-        System.out.println(" [API REQUEST] Solicitud GET a /api/talleres/activos. Devolviendo JSON.");
+        System.out.println("[INFO] [CONTROLLER] Solicitud GET a /api/talleres/activos. Devolviendo JSON.");
         List<Taller> talleresActivos = tallerService.encontrarTalleresActivos();
         return talleresActivos;
     }

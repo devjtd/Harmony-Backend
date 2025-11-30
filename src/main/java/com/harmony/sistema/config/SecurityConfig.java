@@ -30,7 +30,7 @@ public class SecurityConfig {
     // Configura la cadena de filtros de seguridad HTTP
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println(" [CONFIG] Inicializando Bean: SecurityFilterChain (Configuración de Seguridad HTTP)");
+        System.out.println("[INFO] [CONFIG] Inicializando Bean: SecurityFilterChain (Configuración de Seguridad HTTP)");
 
         http
                 // Deshabilita CSRF y configura autorización
@@ -70,22 +70,23 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler mySuccessHandler() {
         System.out
-                .println(" [CONFIG] Inicializando Bean: AuthenticationSuccessHandler (Manejo de redirección por Rol)");
+                .println(
+                        "[INFO] [CONFIG] Inicializando Bean: AuthenticationSuccessHandler (Manejo de redirección por Rol)");
         return (request, response, authentication) -> {
             var roles = authentication.getAuthorities();
 
             // Redirige según el rol detectado
             if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
-                System.out.println(" [AUTH] Login exitoso. Redirigiendo a /admin/clientes.");
+                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /admin/clientes.");
                 response.sendRedirect("/admin/clientes");
             } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_CLIENTE"))) {
-                System.out.println(" [AUTH] Login exitoso. Redirigiendo a /horario (Cliente).");
+                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /horario (Cliente).");
                 response.sendRedirect("/horario");
             } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_PROFESOR"))) {
-                System.out.println(" [AUTH] Login exitoso. Redirigiendo a /horario (Profesor).");
+                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /horario (Profesor).");
                 response.sendRedirect("/horario");
             } else {
-                System.out.println(" [AUTH] Login exitoso. Rol no reconocido. Redirigiendo a /login.");
+                System.out.println("[WARN] [AUTH] Login exitoso. Rol no reconocido. Redirigiendo a /login.");
                 response.sendRedirect("/login");
             }
         };

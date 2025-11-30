@@ -24,7 +24,7 @@ public class ApplicationConfig {
     // Servicio para cargar detalles de usuario por email
     @Bean
     public UserDetailsService userDetailsService() {
-        System.out.println(" [CONFIG] Inicializando Bean: UserDetailsService (Cargador de usuarios por Email)");
+        System.out.println("[INFO] [CONFIG] Inicializando Bean: UserDetailsService (Cargador de usuarios por Email)");
         // Busca usuario por email o lanza excepción
         return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
@@ -34,7 +34,7 @@ public class ApplicationConfig {
     @SuppressWarnings("deprecation")
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        System.out.println(" [CONFIG] Inicializando Bean: AuthenticationProvider (DaoAuthenticationProvider)");
+        System.out.println("[INFO] [CONFIG] Inicializando Bean: AuthenticationProvider (DaoAuthenticationProvider)");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         // Asigna servicio de usuarios y encriptador
         authProvider.setUserDetailsService(userDetailsService());
@@ -45,7 +45,7 @@ public class ApplicationConfig {
     // Gestor de autenticación global
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        System.out.println(" [CONFIG] Inicializando Bean: AuthenticationManager");
+        System.out.println("[INFO] [CONFIG] Inicializando Bean: AuthenticationManager");
         // Retorna el AuthenticationManager
         return config.getAuthenticationManager();
     }
@@ -53,7 +53,7 @@ public class ApplicationConfig {
     // Codificador de contraseñas BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
-        System.out.println(" [CONFIG] Inicializando Bean: PasswordEncoder (BCrypt)");
+        System.out.println("[INFO] [CONFIG] Inicializando Bean: PasswordEncoder (BCrypt)");
         return new BCryptPasswordEncoder();
     }
 }

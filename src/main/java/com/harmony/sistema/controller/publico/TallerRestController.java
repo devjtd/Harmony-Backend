@@ -38,7 +38,7 @@ public class TallerRestController {
      */
     @GetMapping("/detallados/activos")
     public List<TallerResponseDTO> getTalleresDetalladosActivos() {
-        System.out.println(" [REST] Mapeando solicitud GET a /api/talleres/detallados/activos.");
+        System.out.println("[INFO] [CONTROLLER] Mapeando solicitud GET a /api/talleres/detallados/activos.");
 
         List<Taller> talleres = tallerService.encontrarTalleresActivos();
 
@@ -61,7 +61,7 @@ public class TallerRestController {
                 })
                 .collect(Collectors.toList());
 
-        System.out.println(" [REST SUCCESS] Retornando " + dtoList.size() + " talleres detallados.");
+        System.out.println("[SUCCESS] [CONTROLLER] Retornando " + dtoList.size() + " talleres detallados.");
         return dtoList;
     }
 }

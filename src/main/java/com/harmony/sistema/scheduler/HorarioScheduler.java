@@ -23,7 +23,7 @@ public class HorarioScheduler {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void verificarHorariosFinalizados() {
-        System.out.println("🕒 [SCHEDULER] Verificando horarios finalizados...");
+        System.out.println("[INFO] [SCHEDULER] Verificando horarios finalizados...");
 
         // Buscamos horarios no finalizados cuya fecha de fin sea anterior a hoy
         List<Horario> horariosVencidos = horarioRepository.findByFinalizadoFalseAndFechaFinBefore(LocalDate.now());
@@ -31,11 +31,11 @@ public class HorarioScheduler {
         if (!horariosVencidos.isEmpty()) {
             horariosVencidos.forEach(horario -> {
                 horario.setFinalizado(true);
-                System.out.println("✅ Horario ID " + horario.getId() + " finalizado autom\u00e1ticamente. Fecha fin: "
+                System.out.println("[SUCCESS] [SCHEDULER] Horario ID " + horario.getId() + " finalizado autom\u00e1ticamente. Fecha fin: "
                         + horario.getFechaFin());
             });
             horarioRepository.saveAll(horariosVencidos);
-            System.out.println("🔄 Total de horarios actualizados: " + horariosVencidos.size());
+            System.out.println("[INFO] [SCHEDULER] Total de horarios actualizados: " + horariosVencidos.size());
         } else {
             System.out.println("ℹ\ufe0f No se encontraron horarios vencidos pendientes de finalizar.");
         }

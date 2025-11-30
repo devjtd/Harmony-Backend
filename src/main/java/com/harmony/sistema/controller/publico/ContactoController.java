@@ -35,7 +35,7 @@ public class ContactoController {
     @ResponseBody
     @SuppressWarnings("CallToPrintStackTrace")
     public ResponseEntity<Map<String, Object>> enviarContactoRest(@RequestBody ContactoFormDTO form) {
-        System.out.println(" [REST REQUEST] POST a /contacto/enviar (API REST)");
+        System.out.println("[INFO] [CONTROLLER] POST a /contacto/enviar (API REST)");
         System.out.println(" [CONTROLLER] Procesando mensaje de: " + form.getCorreo());
         System.out.println(" [CONTROLLER] Nombre: " + form.getNombre());
         System.out.println(" [CONTROLLER] Asunto: " + form.getAsunto());

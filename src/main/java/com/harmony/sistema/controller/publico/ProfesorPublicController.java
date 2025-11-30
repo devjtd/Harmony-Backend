@@ -26,7 +26,7 @@ public class ProfesorPublicController {
      */
     @GetMapping
     public List<Profesor> listarProfesores() {
-        System.out.println(" [REST REQUEST] Solicitud GET a /api/profesores. Devolviendo lista de profesores.");
+        System.out.println("[INFO] [CONTROLLER] Solicitud GET a /api/profesores. Devolviendo lista de profesores.");
         return profesorService.listarProfesores();
     }
 }

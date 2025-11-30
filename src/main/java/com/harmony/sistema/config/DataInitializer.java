@@ -53,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
         @Override
         @Transactional
         public void run(String... args) throws Exception {
-                System.out.println("--- INICIANDO CONFIGURACIÓN INICIAL DE HARMONY ---");
+                System.out.println("[INFO] [DATA] ========== INICIANDO CONFIGURACIÓN INICIAL DE HARMONY ---");
 
                 // Inicializa roles y usuarios
                 Role adminRole = initializeRole(ROLE_ADMIN);
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "/images/profesorFlauta.jpg",
                                 "\"La flauta tiene una dulzura especial que llega al alma. Me apasiona enseñar este instrumento porque permite expresar emociones con una delicadeza única. Ver a mis alumnos disfrutar del proceso y conquistar cada melodía es mi mayor satisfacción como profesor.\"");
 
-                System.out.println("Profesores inicializados/verificados.");
+                System.out.println("[INFO] [DATA] Profesores inicializados/verificados.");
 
                 // Inicializa talleres
                 Taller piano = initializeTaller(
@@ -122,7 +122,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Embocadura correcta y respiración, Digitaciones de notas, Lectura de partituras, Escalas mayores, Interpretación de piezas sencillas.",
                                 new BigDecimal("350.00"));
 
-                System.out.println("Talleres inicializados/verificados.");
+                System.out.println("[INFO] [DATA] Talleres inicializados/verificados.");
 
                 // Inicializa horarios
                 LocalDate hoy = LocalDate.now();
@@ -151,7 +151,7 @@ public class DataInitializer implements CommandLineRunner {
                 initializeHorario(flauta, jeremyAgurto, "Martes, Jueves, Sábados", "18:00", "20:00", VACANTES_DEFAULT,
                                 hoy.minusDays(14));
 
-                System.out.println("--- CONFIGURACIÓN INICIAL DE HARMONY FINALIZADA ---");
+                System.out.println("[INFO] [DATA] ========== CONFIGURACIÓN INICIAL DE HARMONY FINALIZADA ---");
         }
 
         // Busca o crea un rol
@@ -159,7 +159,7 @@ public class DataInitializer implements CommandLineRunner {
                 return roleRepository.findByName(roleName)
                                 .orElseGet(() -> {
                                         Role newRole = Role.builder().name(roleName).build();
-                                        System.out.println(" [DATA] Inicializando Role: " + roleName);
+                                        System.out.println("[INFO] [DATA] Inicializando Role: " + roleName);
                                         return roleRepository.save(newRole);
                                 });
         }
@@ -176,7 +176,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .roles(adminRoles)
                                         .build();
                         userRepository.save(adminUser);
-                        System.out.println(" [DATA] Inicializando Usuario Admin.");
+                        System.out.println("[INFO] [DATA] Inicializando Usuario Admin.");
                 }
         }
 
@@ -205,7 +205,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .informacion(informacion)
                                 .user(user)
                                 .build();
-                System.out.println(" [DATA] Inicializando Profesor: " + nombre);
+                System.out.println("[INFO] [DATA] Inicializando Profesor: " + nombre);
                 return profesorRepository.save(profesor);
         }
 
@@ -226,7 +226,8 @@ public class DataInitializer implements CommandLineRunner {
                                                         .precio(precio)
                                                         .temas(temas)
                                                         .build();
-                                        System.out.println(" [DATA] Inicializando Taller: " + nombre + " con precio S/ "
+                                        System.out.println("[INFO] [DATA] Inicializando Taller: " + nombre
+                                                        + " con precio S/ "
                                                         + precio);
                                         return tallerRepository.save(newTaller);
                                 });
@@ -245,7 +246,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 taller, profesor, dias, inicio, fin);
 
                 if (existingHorario.isPresent()) {
-                        System.out.println(" [DATA - SKIP] Horario ya existe para " + taller.getNombre() + " (Prof. "
+                        System.out.println("[INFO] [DATA] Horario ya existe para " + taller.getNombre() + " (Prof. "
                                         + profesor.getNombreCompleto() + "): " + dias + " de " + horaInicio + " a "
                                         + horaFin + ". Saltando inicialización.");
                         return existingHorario.get();
@@ -267,7 +268,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .vacantesDisponibles(vacantes)
                                 .build();
 
-                System.out.println(" [DATA] Inicializando Nuevo Horario para " + taller.getNombre() + " (Prof. "
+                System.out.println("[INFO] [DATA] Inicializando Nuevo Horario para " + taller.getNombre() + " (Prof. "
                                 + profesor.getNombreCompleto() + "): " + dias + " de " + horaInicio + " a " + horaFin
                                 + ". Inicia: " + fechaInicio);
                 return horarioRepository.save(newHorario);
