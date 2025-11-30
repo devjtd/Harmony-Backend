@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+// Test de integración simple para InscripcionRestController
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-test.properties")
@@ -37,6 +38,6 @@ class InscripcionRestControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(datos)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.clienteId").exists());
+                .andExpect(jsonPath("$.id").exists());
     }
 }

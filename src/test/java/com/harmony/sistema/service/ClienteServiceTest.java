@@ -5,14 +5,11 @@ import com.harmony.sistema.model.Cliente;
 import com.harmony.sistema.model.User;
 import com.harmony.sistema.repository.ClienteRepository;
 import com.harmony.sistema.repository.UserRepository;
-import com.harmony.sistema.repository.InscripcionRepository;
-import com.harmony.sistema.repository.HorarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -28,18 +25,6 @@ class ClienteServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private EmailService emailService;
-
-    @Mock
-    private InscripcionRepository inscripcionRepository;
-
-    @Mock
-    private HorarioRepository horarioRepository;
 
     @InjectMocks
     private ClienteService clienteService;
