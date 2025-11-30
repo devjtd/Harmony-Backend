@@ -45,13 +45,14 @@ public class InscripcionRestController {
      */
     @PostMapping("/cliente")
     public ResponseEntity<Cliente> guardarDatosPersonales(@RequestBody DatosPersonalesFormDTO datos) {
-        System.out.println(" [REST REQUEST] POST a /api/inscripcion/cliente. Creando cliente: " + datos.getNombre());
+        System.out
+                .println("[INFO] [CONTROLLER] POST a /api/inscripcion/cliente. Creando cliente: " + datos.getNombre());
         try {
             Cliente clienteGuardado = inscripcionService.guardarOObtenerClienteTemporal(datos);
-            System.out.println(" [REST SERVICE SUCCESS] Cliente creado/obtenido con ID: " + clienteGuardado.getId());
+            System.out.println("[SUCCESS] [CONTROLLER] Cliente creado/obtenido con ID: " + clienteGuardado.getId());
             return new ResponseEntity<>(clienteGuardado, HttpStatus.OK);
         } catch (Exception e) {
-            System.err.println(" [REST SERVICE ERROR] Fallo al guardar datos personales. Detalle: " + e.getMessage());
+            System.err.println("[ERROR] [CONTROLLER] Fallo al guardar datos personales. Detalle: " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
@@ -63,7 +64,8 @@ public class InscripcionRestController {
     @GetMapping("/talleresDisponibles")
     public ResponseEntity<List<Taller>> getTalleresDisponibles() {
         System.out
-                .println(" [REST REQUEST] GET a /api/inscripcion/talleresDisponibles. Cargando talleres disponibles.");
+                .println(
+                        "[INFO] [CONTROLLER] GET a /api/inscripcion/talleresDisponibles. Cargando talleres disponibles.");
 
         List<Taller> talleres = tallerService.encontrarTalleresActivos();
         LocalDate hoy = LocalDate.now();
@@ -93,7 +95,7 @@ public class InscripcionRestController {
      */
     @PostMapping("/confirmar")
     public ResponseEntity<?> confirmarInscripcion(@RequestBody InscripcionPayloadDTO payload) {
-        System.out.println(" [REST REQUEST] POST a /api/inscripcion/confirmar. Procesando inscripción para: "
+        System.out.println("[INFO] [CONTROLLER] POST a /api/inscripcion/confirmar. Procesando inscripción para: "
                 + payload.getEmail());
 
         InscripcionFormDTO formDTO = new InscripcionFormDTO();
@@ -107,15 +109,16 @@ public class InscripcionRestController {
                 horariosSeleccionados.put(inscripcion.getTallerId(), inscripcion.getHorarioId());
             });
         }
-        System.out.println(" [REST DATA] Inscripciones a procesar: " + horariosSeleccionados.size());
+        System.out.println("[INFO] [CONTROLLER] Inscripciones a procesar: " + horariosSeleccionados.size());
         if (horariosSeleccionados.isEmpty()) {
-            System.out.println(" [REST WARNING] Se recibió una solicitud de inscripción sin talleres seleccionados.");
+            System.out
+                    .println("[WARN] [CONTROLLER] Se recibió una solicitud de inscripción sin talleres seleccionados.");
         }
 
         try {
             CredencialesDTO credenciales = inscripcionService.procesarInscripcionCompleta(formDTO,
                     horariosSeleccionados);
-            System.out.println(" [REST SERVICE SUCCESS] Usuario creado con correo: " + credenciales.getCorreo());
+            System.out.println("[SUCCESS] [CONTROLLER] Usuario creado con correo: " + credenciales.getCorreo());
 
             InscripcionResponseDTO response = new InscripcionResponseDTO(
                     credenciales.getCorreo(),
@@ -124,7 +127,7 @@ public class InscripcionRestController {
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
-            System.err.println(" [REST SERVICE ERROR] Fallo al procesar la inscripción. Detalle: " + e.getMessage());
+            System.err.println("[ERROR] [CONTROLLER] Fallo al procesar la inscripción. Detalle: " + e.getMessage());
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Fallo en la inscripción.");
             errorResponse.put("mensaje", e.getMessage());
@@ -139,7 +142,7 @@ public class InscripcionRestController {
     @PostMapping("/solicitar-baja")
     @SuppressWarnings("UseSpecificCatch")
     public ResponseEntity<Map<String, Object>> solicitarBaja(@RequestBody Map<String, Object> payload) {
-        System.out.println(" [REST REQUEST] POST a /api/inscripcion/solicitar-baja");
+        System.out.println("[INFO] [CONTROLLER] POST a /api/inscripcion/solicitar-baja");
 
         try {
             Long clienteId = Long.valueOf(payload.get("clienteId").toString());
@@ -154,7 +157,7 @@ public class InscripcionRestController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println(" [REST SERVICE ERROR] Fallo al solicitar baja: " + e.getMessage());
+            System.err.println("[ERROR] [CONTROLLER] Fallo al solicitar baja: " + e.getMessage());
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", "Error al procesar la solicitud: " + e.getMessage());
@@ -168,7 +171,7 @@ public class InscripcionRestController {
      */
     @PostMapping("/nueva")
     public ResponseEntity<Map<String, Object>> nuevaInscripcion(@RequestBody Map<String, Long> payload) {
-        System.out.println(" [REST REQUEST] POST a /api/inscripcion/nueva");
+        System.out.println("[INFO] [CONTROLLER] POST a /api/inscripcion/nueva");
 
         try {
             Long clienteId = payload.get("clienteId");
@@ -182,7 +185,7 @@ public class InscripcionRestController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println(" [REST SERVICE ERROR] Fallo al realizar nueva inscripción: " + e.getMessage());
+            System.err.println("[ERROR] [CONTROLLER] Fallo al realizar nueva inscripción: " + e.getMessage());
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", "Error al realizar la inscripción: " + e.getMessage());
@@ -196,7 +199,7 @@ public class InscripcionRestController {
      */
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<Map<String, Object>>> obtenerInscripcionesPorCliente(@PathVariable Long clienteId) {
-        System.out.println(" [REST REQUEST] GET a /api/inscripcion/cliente/" + clienteId);
+        System.out.println("[INFO] [CONTROLLER] GET a /api/inscripcion/cliente/" + clienteId);
         try {
             List<Inscripcion> inscripciones = inscripcionService.obtenerInscripcionesPorCliente(clienteId);
 
@@ -227,7 +230,7 @@ public class InscripcionRestController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println(" [REST SERVICE ERROR] Error al obtener inscripciones: " + e.getMessage());
+            System.err.println("[ERROR] [CONTROLLER] Error al obtener inscripciones: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

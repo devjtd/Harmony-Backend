@@ -18,12 +18,12 @@ public class ValidadorTaller {
      * @throws RuntimeException si alguna validación falla
      */
     public void validarParaCreacion(Taller taller) {
-        System.out.println("🔍 [VALIDADOR TALLER] Validando taller para creación.");
+        System.out.println("[INFO] [VALIDATOR] Validando taller para creación.");
 
         validarNombre(taller.getNombre());
         validarDescripcion(taller.getDescripcion());
 
-        System.out.println("✅ [VALIDADOR TALLER] Validaciones pasadas correctamente.");
+        System.out.println("[SUCCESS] [VALIDATOR] Validaciones pasadas correctamente.");
     }
 
     /**
@@ -33,7 +33,7 @@ public class ValidadorTaller {
      * @throws RuntimeException si alguna validación falla
      */
     public void validarParaEdicion(Taller taller) {
-        System.out.println("🔍 [VALIDADOR TALLER] Validando taller para edición.");
+        System.out.println("[INFO] [VALIDATOR] Validando taller para edición.");
 
         if (taller.getId() == null) {
             throw new RuntimeException("El ID del taller es obligatorio para edición.");
@@ -42,7 +42,7 @@ public class ValidadorTaller {
         validarNombre(taller.getNombre());
         validarDescripcion(taller.getDescripcion());
 
-        System.out.println("✅ [VALIDADOR TALLER] Validaciones de edición pasadas correctamente.");
+        System.out.println("[SUCCESS] [VALIDATOR] Validaciones de edición pasadas correctamente.");
     }
 
     /**
@@ -50,7 +50,7 @@ public class ValidadorTaller {
      */
     private void validarNombre(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
-            System.out.println("❌ [VALIDADOR TALLER ERROR] Nombre del taller vacío.");
+            System.err.println("[ERROR] [VALIDATOR] Nombre del taller vacío.");
             throw new RuntimeException("El nombre del taller es obligatorio");
         }
     }
@@ -60,7 +60,7 @@ public class ValidadorTaller {
      */
     private void validarDescripcion(String descripcion) {
         if (descripcion == null || descripcion.trim().isEmpty()) {
-            System.out.println("❌ [VALIDADOR TALLER ERROR] Descripción del taller vacía.");
+            System.err.println("[ERROR] [VALIDATOR] Descripción del taller vacía.");
             throw new RuntimeException("La descripción del taller es obligatoria");
         }
     }

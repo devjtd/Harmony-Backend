@@ -24,17 +24,17 @@ public class ServicioNotificacion {
      * @param password Contraseña temporal generada
      */
     public void enviarCredenciales(String email, String nombre, String password) {
-        System.out.println("📧 [SERVICIO NOTIFICACION] Enviando credenciales a: " + email);
+        System.out.println("[INFO] [NOTIF] Enviando credenciales a: " + email);
 
         String asunto = "¡Bienvenido a Harmony! Tus Credenciales de Acceso";
         String cuerpo = construirMensajeBienvenida(nombre, email, password);
 
         try {
             emailService.enviarCorreo(email, asunto, cuerpo);
-            System.out.println("✅ [SERVICIO NOTIFICACION SUCCESS] Correo de bienvenida enviado a: " + email);
+            System.out.println("[SUCCESS] [NOTIF] Correo de bienvenida enviado a: " + email);
         } catch (Exception e) {
-            System.out.println(
-                    "❌ [SERVICIO NOTIFICACION ERROR] Error al enviar correo a " + email + ": " + e.getMessage());
+            System.err.println(
+                    "[ERROR] [NOTIF] Error al enviar correo a " + email + ": " + e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class ServicioNotificacion {
      * @param motivo  Motivo de la solicitud
      */
     public void enviarSolicitudBaja(Cliente cliente, Horario horario, String motivo) {
-        System.out.println("📧 [SERVICIO NOTIFICACION] Enviando solicitud de baja de: " + cliente.getNombreCompleto());
+        System.out.println("[INFO] [NOTIF] Enviando solicitud de baja de: " + cliente.getNombreCompleto());
 
         String asunto = "Solicitud de Baja - " + cliente.getNombreCompleto();
         String cuerpo = construirMensajeBaja(cliente, horario, motivo);
@@ -55,10 +55,10 @@ public class ServicioNotificacion {
 
         try {
             emailService.enviarCorreo(adminEmail, asunto, cuerpo);
-            System.out.println("✅ [SERVICIO NOTIFICACION SUCCESS] Notificación de baja enviada al admin.");
+            System.out.println("[SUCCESS] [NOTIF] Notificación de baja enviada al admin.");
         } catch (Exception e) {
-            System.out
-                    .println("❌ [SERVICIO NOTIFICACION ERROR] Error al enviar notificación de baja: " + e.getMessage());
+            System.err
+                    .println("[ERROR] [NOTIF] Error al enviar notificación de baja: " + e.getMessage());
         }
     }
 

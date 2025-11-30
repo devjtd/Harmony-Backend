@@ -57,12 +57,12 @@ public class ServicioRegistroCliente {
      */
     @Transactional
     public CredencialesDTO registrarYActivarCliente(InscripcionFormDTO dto) {
-        System.out.println("🔵 [SERVICIO REGISTRO CLIENTE] Iniciando registro para: " + dto.getEmail());
+        System.out.println("[INFO] [REGISTRO] Iniciando registro para: " + dto.getEmail());
 
         // 1. Validar que no exista un usuario activo con este email
         Optional<User> userOpt = userRepository.findByEmail(dto.getEmail());
         if (userOpt.isPresent() && userOpt.get().isEnabled()) {
-            System.out.println("❌ [SERVICIO REGISTRO CLIENTE ERROR] El correo ya tiene una cuenta activa.");
+            System.err.println("[ERROR] [REGISTRO] El correo ya tiene una cuenta activa.");
             throw new RuntimeException(
                     "El correo ya tiene una cuenta activa. Por favor, revisa el listado de clientes.");
         }
@@ -73,12 +73,12 @@ public class ServicioRegistroCliente {
         // 3. Generar contraseña temporal
         String password = servicioPassword.generarPasswordTemporal();
         String encodedPassword = passwordEncoder.encode(password);
-        System.out.println("🔐 [SERVICIO REGISTRO CLIENTE] Contraseña encriptada generada.");
+        System.out.println("[INFO] [REGISTRO] Contraseña encriptada generada.");
 
         // 4. Obtener rol de cliente
         Role roleCliente = roleRepository.findByName(ROLE_CLIENTE)
                 .orElseThrow(() -> new RuntimeException("Error: El rol CLIENTE no fue encontrado."));
-        System.out.println("✅ [SERVICIO REGISTRO CLIENTE] Rol 'ROLE_CLIENTE' obtenido.");
+        System.out.println("[SUCCESS] [REGISTRO] Rol 'ROLE_CLIENTE' obtenido.");
 
         // 5. Crear o actualizar usuario
         User newUser = userOpt.orElseGet(() -> User.builder().build());
@@ -88,17 +88,17 @@ public class ServicioRegistroCliente {
         newUser.setRoles(Set.of(roleCliente));
 
         userRepository.save(newUser);
-        System.out.println("✅ [SERVICIO REGISTRO CLIENTE] User persistido con ID: " + newUser.getId());
+        System.out.println("[SUCCESS] [REGISTRO] User persistido con ID: " + newUser.getId());
 
         // 6. Asociar usuario al cliente
         cliente.setUser(newUser);
         clienteRepository.save(cliente);
-        System.out.println("✅ [SERVICIO REGISTRO CLIENTE] Cliente asociado al User.");
+        System.out.println("[SUCCESS] [REGISTRO] Cliente asociado al User.");
 
         // 7. Enviar credenciales por correo
         servicioNotificacion.enviarCredenciales(dto.getEmail(), dto.getNombre(), password);
 
-        System.out.println("✅ [SERVICIO REGISTRO CLIENTE SUCCESS] Proceso de registro completado.");
+        System.out.println("[SUCCESS] [REGISTRO] Proceso de registro completado.");
         return new CredencialesDTO(dto.getEmail(), password);
     }
 
@@ -114,7 +114,7 @@ public class ServicioRegistroCliente {
             cliente.setTelefono(dto.getTelefono());
             clienteRepository.save(cliente);
             System.out.println(
-                    "✅ [SERVICIO REGISTRO CLIENTE] Cliente existente actualizado (ID: " + cliente.getId() + ").");
+                    "[SUCCESS] [REGISTRO] Cliente existente actualizado (ID: " + cliente.getId() + ").");
             return cliente;
         } else {
             ClienteRegistroDTO registroDTO = new ClienteRegistroDTO(
@@ -124,7 +124,7 @@ public class ServicioRegistroCliente {
 
             Cliente nuevoCliente = clienteService.crearClienteTemporal(registroDTO);
             System.out.println(
-                    "✅ [SERVICIO REGISTRO CLIENTE] Nuevo cliente temporal creado (ID: " + nuevoCliente.getId() + ").");
+                    "[SUCCESS] [REGISTRO] Nuevo cliente temporal creado (ID: " + nuevoCliente.getId() + ").");
             return nuevoCliente;
         }
     }

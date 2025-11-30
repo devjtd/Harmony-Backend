@@ -64,15 +64,15 @@ public class ClienteService {
 
     // Obtiene y retorna una lista de todos los clientes en la base de datos.
     public List<Cliente> listarClientes() {
-        System.out.println(" [CLIENTE SERVICE] Iniciando listado de todos los clientes.");
+        System.out.println("[INFO] [CLIENTE] Iniciando listado de todos los clientes.");
         List<Cliente> clientes = clienteRepository.findAll();
-        System.out.println(" [CLIENTE SERVICE] Listado de clientes encontrado: " + clientes.size() + " clientes.");
+        System.out.println("[SUCCESS] [CLIENTE] Listado de clientes encontrado: " + clientes.size() + " clientes.");
         return clientes;
     }
 
     // SOLO CREA CLIENTE, SIN USER NI CORREO
     public Cliente crearClienteTemporal(ClienteRegistroDTO dto) {
-        System.out.println(" [CLIENTE SERVICE] Iniciando creación de Cliente TEMPORAL.");
+        System.out.println("[INFO] [CLIENTE] Iniciando creación de Cliente TEMPORAL.");
 
         // 1. Crea y guarda la entidad Cliente (sin User)
         Cliente cliente = Cliente.builder()
@@ -82,7 +82,7 @@ public class ClienteService {
                 .user(null)
                 .build();
         clienteRepository.save(cliente);
-        System.out.println(" [CLIENTE SERVICE] Entidad Cliente TEMPORAL (" + cliente.getCorreo()
+        System.out.println("[SUCCESS] [CLIENTE] Entidad Cliente TEMPORAL (" + cliente.getCorreo()
                 + ") guardada. ID: " + cliente.getId());
 
         return cliente;
@@ -93,7 +93,7 @@ public class ClienteService {
     // correo.
     public Cliente actualizarCliente(Long clienteId, String nuevoNombre, String nuevoCorreo, String nuevoTelefono,
             String originalCorreo) {
-        System.out.println(" [CLIENTE SERVICE] Iniciando actualización para Cliente ID: " + clienteId);
+        System.out.println("[INFO] [CLIENTE] Iniciando actualización para Cliente ID: " + clienteId);
         // 1. Busca el Cliente y su User asociado.
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + clienteId));
@@ -108,23 +108,23 @@ public class ClienteService {
         boolean emailCambiado = !originalCorreo.equalsIgnoreCase(nuevoCorreo);
 
         if (emailCambiado && user != null) {
-            System.out.println(" [CLIENTE SERVICE] Correo electrónico cambiado. Actualizando credenciales.");
+            System.out.println("[INFO] [CLIENTE] Correo electrónico cambiado. Actualizando credenciales.");
 
             // 3a. Valida que el nuevo correo no esté ya asignado a otro usuario.
             if (userRepository.findByEmail(nuevoCorreo).isPresent() &&
                     !userRepository.findByEmail(nuevoCorreo).get().getId().equals(user.getId())) {
-                System.out.println(" [CLIENTE SERVICE ERROR] El nuevo correo " + nuevoCorreo + " ya existe.");
+                System.err.println("[ERROR] [CLIENTE] El nuevo correo " + nuevoCorreo + " ya existe.");
                 throw new RuntimeException("El nuevo correo electrónico ya está registrado en el sistema.");
             }
 
             // 3b. Genera nueva contraseña, actualiza email y contraseña en User, y guarda.
             String nuevaPasswordRandom = generadorRandomPassword();
-            System.out.println(" [CLIENTE SERVICE] Nueva contraseña temporal generada.");
+            System.out.println("[INFO] [CLIENTE] Nueva contraseña temporal generada.");
 
             user.setEmail(nuevoCorreo);
             user.setPassword(passwordEncoder.encode(nuevaPasswordRandom));
             userRepository.save(user);
-            System.out.println(" [CLIENTE SERVICE] User actualizado y guardado con nueva contraseña.");
+            System.out.println("[SUCCESS] [CLIENTE] User actualizado y guardado con nueva contraseña.");
 
             // 3c. Envía una notificación por correo con las nuevas credenciales temporales.
             String asunto = "IMPORTANTE: Cambio de Correo y Contraseña Temporal - Harmony";
@@ -136,18 +136,18 @@ public class ClienteService {
                     "Saludos,\nEquipo Harmony";
 
             emailService.enviarCorreo(nuevoCorreo, asunto, cuerpo);
-            System.out.println(" [CLIENTE SERVICE] Correo de notificación enviado al nuevo email.");
+            System.out.println("[SUCCESS] [CLIENTE] Correo de notificación enviado al nuevo email.");
 
         } else if (!emailCambiado && user != null) {
             // 4. Si el email no cambió, solo guarda el User para mantener la sesión abierta
             userRepository.save(user);
             System.out.println(
-                    " [CLIENTE SERVICE] Email no cambiado. Solo actualizando datos del cliente y guardando User.");
+                    "[INFO] [CLIENTE] Email no cambiado. Solo actualizando datos del cliente y guardando User.");
         }
 
         // 5. Guarda el Cliente actualizado.
         clienteRepository.save(cliente);
-        System.out.println(" [CLIENTE SERVICE] Cliente ID " + clienteId + " actualizado exitosamente.");
+        System.out.println("[SUCCESS] [CLIENTE] Cliente ID " + clienteId + " actualizado exitosamente.");
 
         return cliente;
     }
@@ -156,7 +156,7 @@ public class ClienteService {
     // pero MANTIENE el registro del Cliente. Restaura las vacantes.
     @Transactional
     public void eliminarCliente(Long clienteId) {
-        System.out.println(" [CLIENTE SERVICE] Iniciando proceso de BAJA para Cliente ID: " + clienteId);
+        System.out.println("[INFO] [CLIENTE] Iniciando proceso de BAJA para Cliente ID: " + clienteId);
 
         // 1. Busca el Cliente
         Cliente cliente = clienteRepository.findById(clienteId)
@@ -165,7 +165,7 @@ public class ClienteService {
         // 2. Gestionar Inscripciones y Vacantes
         List<Inscripcion> inscripciones = cliente.getInscripciones();
         if (inscripciones != null && !inscripciones.isEmpty()) {
-            System.out.println(" [CLIENTE SERVICE] Procesando " + inscripciones.size()
+            System.out.println("[INFO] [CLIENTE] Procesando " + inscripciones.size()
                     + " inscripciones para devolución de vacantes.");
 
             for (Inscripcion inscripcion : inscripciones) {
@@ -183,7 +183,7 @@ public class ClienteService {
             // Limpiar la lista en memoria del objeto cliente para evitar inconsistencias si
             // se sigue usando
             cliente.getInscripciones().clear();
-            System.out.println(" [CLIENTE SERVICE] Inscripciones eliminadas.");
+            System.out.println("[SUCCESS] [CLIENTE] Inscripciones eliminadas.");
         }
 
         // 3. Eliminar User asociado (Acceso al sistema)
@@ -195,13 +195,13 @@ public class ClienteService {
 
             userRepository.delete(user);
             System.out
-                    .println(" [CLIENTE SERVICE] Usuario (User) eliminado. El cliente ya no tiene acceso al sistema.");
+                    .println("[SUCCESS] [CLIENTE] Usuario (User) eliminado. El cliente ya no tiene acceso al sistema.");
         } else {
-            System.out.println(" [CLIENTE SERVICE] El cliente no tenía usuario asociado.");
+            System.out.println("[WARN] [CLIENTE] El cliente no tenía usuario asociado.");
         }
 
         // 4. El Cliente permanece en la base de datos (Histórico)
-        System.out.println(" [CLIENTE SERVICE] Proceso de BAJA completado. El registro del cliente ID " + clienteId
+        System.out.println("[INFO] [CLIENTE] Proceso de BAJA completado. El registro del cliente ID " + clienteId
                 + " se ha conservado.");
     }
 

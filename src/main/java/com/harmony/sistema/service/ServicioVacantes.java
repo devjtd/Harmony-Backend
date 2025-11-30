@@ -26,11 +26,11 @@ public class ServicioVacantes {
      */
     @Transactional
     public void reservarVacante(Horario horario) {
-        System.out.println("🔵 [SERVICIO VACANTES] Reservando vacante en horario ID: " + horario.getId());
+        System.out.println("[INFO] [VACANTES] Reservando vacante en horario ID: " + horario.getId());
 
         if (horario.getVacantesDisponibles() <= 0) {
-            System.out.println(
-                    "❌ [SERVICIO VACANTES ERROR] No hay vacantes disponibles en horario ID: " + horario.getId());
+            System.err.println(
+                    "[ERROR] [VACANTES] No hay vacantes disponibles en horario ID: " + horario.getId());
             throw new RuntimeException(
                     "No hay vacantes disponibles en el horario seleccionado (ID: " + horario.getId() + ")");
         }
@@ -38,7 +38,7 @@ public class ServicioVacantes {
         horario.setVacantesDisponibles(horario.getVacantesDisponibles() - 1);
         horarioRepository.save(horario);
 
-        System.out.println("✅ [SERVICIO VACANTES SUCCESS] Vacante reservada. Vacantes restantes: "
+        System.out.println("[SUCCESS] [VACANTES] Vacante reservada. Vacantes restantes: "
                 + horario.getVacantesDisponibles());
     }
 
@@ -50,12 +50,12 @@ public class ServicioVacantes {
      */
     @Transactional
     public void liberarVacante(Horario horario) {
-        System.out.println("🔵 [SERVICIO VACANTES] Liberando vacante en horario ID: " + horario.getId());
+        System.out.println("[INFO] [VACANTES] Liberando vacante en horario ID: " + horario.getId());
 
         horario.setVacantesDisponibles(horario.getVacantesDisponibles() + 1);
         horarioRepository.save(horario);
 
-        System.out.println("✅ [SERVICIO VACANTES SUCCESS] Vacante liberada. Vacantes disponibles: "
+        System.out.println("[SUCCESS] [VACANTES] Vacante liberada. Vacantes disponibles: "
                 + horario.getVacantesDisponibles());
     }
 
