@@ -15,7 +15,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     Optional<Cliente> findByCorreo(String correo);
 
-    // NUEVO: Busca un cliente por el email de su User asociado.
+    // Busca un cliente por el email de su User asociado.
     @Query("SELECT c FROM Cliente c JOIN c.user u WHERE u.email = :email")
     Optional<Cliente> findByUserEmail(@Param("email") String email);
 

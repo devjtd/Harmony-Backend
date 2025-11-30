@@ -30,12 +30,10 @@ public class Cliente {
     private Long id;
 
     private String nombreCompleto;
-    private String correo; // <--- AÑADIDO: El cliente almacena el correo
+    private String correo;
     private String telefono;
 
     // Relación con la entidad User para autenticación/login
-    // IMPORTANTE: Se elimina 'nullable = false' para permitir clientes sin User
-    // (temporales)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
     @JsonIgnore

@@ -21,10 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.harmony.sistema.model.Horario;
 import com.harmony.sistema.service.HorarioService;
 
-/**
- * Controller REST para gestión de horarios en el panel de administración.
- * Maneja operaciones CRUD de horarios.
- */
 @RestController
 @RequestMapping("/api/admin/horarios")
 @CrossOrigin(origins = "http://localhost:4200")

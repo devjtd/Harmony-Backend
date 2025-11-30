@@ -17,11 +17,9 @@ import com.harmony.sistema.model.Taller;
 @Repository
 public interface HorarioRepository extends JpaRepository<Horario, Long> {
 
-        // ✅ CORREGIDO: Agregar FETCH JOIN para cargar el profesor
         @Query("SELECT h FROM Horario h LEFT JOIN FETCH h.profesor WHERE h.profesor.user.email = :email")
         List<Horario> findByProfesorUserEmail(@Param("email") String email);
 
-        // ✅ CORREGIDO: Agregar FETCH JOIN para cargar el profesor y taller
         @Query("SELECT DISTINCT h FROM Horario h " +
                         "LEFT JOIN FETCH h.profesor " +
                         "LEFT JOIN FETCH h.taller " +
@@ -29,7 +27,6 @@ public interface HorarioRepository extends JpaRepository<Horario, Long> {
                         "WHERE i.cliente.user.email = :email")
         List<Horario> findByInscripcionesClienteUserEmail(@Param("email") String email);
 
-        // ✅ CORREGIDO: Agregar FETCH JOIN para cargar el profesor
         @Query("SELECT h FROM Horario h " +
                         "LEFT JOIN FETCH h.profesor " +
                         "WHERE h.taller.id = :tallerId " +
@@ -40,7 +37,6 @@ public interface HorarioRepository extends JpaRepository<Horario, Long> {
                         @Param("fecha") LocalDate fecha,
                         @Param("vacantes") Integer vacantes);
 
-        // ✅ CORREGIDO: Agregar FETCH JOIN para cargar el profesor
         @Query("SELECT h FROM Horario h LEFT JOIN FETCH h.profesor WHERE h.taller.id = :tallerId")
         List<Horario> findByTallerId(@Param("tallerId") Long tallerId);
 

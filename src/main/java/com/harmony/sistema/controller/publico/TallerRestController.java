@@ -15,9 +15,6 @@ import com.harmony.sistema.model.Taller;
 import com.harmony.sistema.service.HorarioService;
 import com.harmony.sistema.service.TallerService;
 
-/**
- * REST Controller para exponer datos de Talleres para el frontend de Angular.
- */
 @RestController
 @RequestMapping("/api/talleres")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -32,9 +29,6 @@ public class TallerRestController {
     /**
      * Endpoint para obtener la lista de talleres activos con sus horarios abiertos.
      * GET /api/talleres/detallados/activos
-     * 
-     * @return Lista de objetos Taller, cada uno enriquecido con su lista de
-     *         horariosAbiertos y el indicador tieneHorariosDefinidos.
      */
     @GetMapping("/detallados/activos")
     public List<TallerResponseDTO> getTalleresDetalladosActivos() {

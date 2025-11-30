@@ -1,4 +1,4 @@
-package com.harmony.sistema.dto; // Asegúrate de usar el paquete correcto
+package com.harmony.sistema.dto;
 
 /**
  * DTO para el detalle de Taller/Horario seleccionado dentro del payload.
@@ -9,7 +9,8 @@ public class InscripcionDetalleDTO {
     private Long horarioId;
 
     // --- Constructor, Getters y Setters ---
-    public InscripcionDetalleDTO() {}
+    public InscripcionDetalleDTO() {
+    }
 
     // Getters y Setters (Necesarios para el mapeo)
 

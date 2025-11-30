@@ -12,9 +12,8 @@ public class InscripcionPayloadDTO {
     private String nombre;
     private String email;
     private String telefono;
-    
 
-    // Datos de Pago (Planos en el Payload)
+    // Datos de Pago
     private String numeroTarjeta;
     private String fechaVencimiento;
     private String cvv;
@@ -23,9 +22,8 @@ public class InscripcionPayloadDTO {
     private List<InscripcionDetalleDTO> inscripciones;
 
     // --- Constructor, Getters y Setters ---
-    public InscripcionPayloadDTO() {}
-
-    // Getters y Setters (Necesarios para que Spring mapee el JSON)
+    public InscripcionPayloadDTO() {
+    }
 
     public String getNombre() {
         return nombre;

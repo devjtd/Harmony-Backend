@@ -29,10 +29,6 @@ import com.harmony.sistema.service.ClienteService;
 import com.harmony.sistema.service.InscripcionService;
 import com.harmony.sistema.service.TallerService;
 
-/**
- * Controller REST para gestión de clientes en el panel de administración.
- * Maneja operaciones CRUD de clientes e inscripciones.
- */
 @RestController
 @RequestMapping("/api/admin/clientes")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -294,7 +290,8 @@ public class AdminClienteController {
             @PathVariable Long id,
             @RequestBody Map<String, Long> payload) {
 
-        System.out.println("[INFO] [CONTROLLER] POST /api/admin/clientes/" + id + "/inscripciones - Agregando inscripción");
+        System.out.println(
+                "[INFO] [CONTROLLER] POST /api/admin/clientes/" + id + "/inscripciones - Agregando inscripción");
         Long horarioId = payload.get("horarioId");
         System.out.println("📅 [CONTROLLER] Horario ID: " + horarioId);
 

@@ -20,10 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.harmony.sistema.model.Taller;
 import com.harmony.sistema.service.TallerService;
 
-/**
- * Controller REST para gestión de talleres en el panel de administración.
- * Maneja operaciones CRUD de talleres.
- */
 @RestController
 @RequestMapping("/api/admin/talleres")
 @CrossOrigin(origins = "http://localhost:4200")

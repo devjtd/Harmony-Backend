@@ -6,13 +6,13 @@ public class ClienteRegistroDTO {
     private String nombreCompleto;
     private String correo;
     private String telefono;
-    
-    // CAMBIO: Ahora es un Map<Long, Long> donde:
+
     // Key = tallerId, Value = horarioId
     private Map<Long, Long> talleresSeleccionados;
 
     // Constructores
-    public ClienteRegistroDTO() {}
+    public ClienteRegistroDTO() {
+    }
 
     public ClienteRegistroDTO(String nombreCompleto, String correo, String telefono) {
         this.nombreCompleto = nombreCompleto;

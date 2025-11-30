@@ -8,10 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Noticia {
-    private Long id; // Identificador único
-    private String titulo; // El título de la noticia
-    private String contenido; // Texto principal de la noticia
-    private String imagenUrl; // URL de la imagen asociada
+    private Long id;
+    private String titulo;
+    private String contenido;
+    private String imagenUrl;
 
-    
 }

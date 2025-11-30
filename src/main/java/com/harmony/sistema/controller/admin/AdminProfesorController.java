@@ -23,10 +23,6 @@ import com.harmony.sistema.dto.ProfesorRegistroDTO;
 import com.harmony.sistema.model.Profesor;
 import com.harmony.sistema.service.ProfesorService;
 
-/**
- * Controller REST para gestión de profesores en el panel de administración.
- * Maneja operaciones CRUD de profesores.
- */
 @RestController
 @RequestMapping("/api/admin/profesores")
 @CrossOrigin(origins = "http://localhost:4200")

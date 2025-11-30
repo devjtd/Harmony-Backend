@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/api/blog") // Ruta que consumirá Angular
+@RequestMapping("/api/blog")
 public class BlogRestController {
 
     private final BlogService blogService;

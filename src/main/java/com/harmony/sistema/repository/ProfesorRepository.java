@@ -18,7 +18,7 @@ public interface ProfesorRepository extends JpaRepository<Profesor, Long> {
     // Busca un profesor por su nombre completo.
     Optional<Profesor> findByNombreCompleto(String nombreCompleto);
 
-    // NUEVO: Busca un profesor por el email de su User asociado.
+    // Busca un profesor por el email de su User asociado.
     @Query("SELECT p FROM Profesor p JOIN p.user u WHERE u.email = :email")
     Optional<Profesor> findByUserEmail(@Param("email") String email);
 }

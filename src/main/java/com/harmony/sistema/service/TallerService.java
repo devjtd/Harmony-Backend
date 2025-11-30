@@ -23,7 +23,7 @@ public class TallerService {
     @Autowired
     private ConfiguradorDefaultsTaller configuradorDefaults;
 
-    // ✅ CORREGIDO: Usa query con FETCH JOIN
+    // Usa query con FETCH JOIN
     public List<Taller> encontrarTalleresActivos() {
         System.out.println("[INFO] [TALLER] Buscando todos los talleres activos.");
         List<Taller> talleres = tallerRepository.findByActivoTrue();
@@ -31,7 +31,7 @@ public class TallerService {
         return talleres;
     }
 
-    // ✅ CORREGIDO: Usa query con FETCH JOIN
+    // Usa query con FETCH JOIN
     public List<Taller> listarTalleres() {
         System.out.println("[INFO] [TALLER] Listando todos los talleres (activos e inactivos).");
         List<Taller> talleres = tallerRepository.findAllWithHorariosAndProfesores();

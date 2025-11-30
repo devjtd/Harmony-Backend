@@ -11,8 +11,9 @@ public class CredencialesDTO {
     private String contrasenaTemporal;
 
     // Constructor vacío
-    public CredencialesDTO() {}
-    
+    public CredencialesDTO() {
+    }
+
     // Constructor con campos
     public CredencialesDTO(String correo, String contrasenaTemporal) {
         this.correo = correo;
@@ -28,7 +29,7 @@ public class CredencialesDTO {
         return contrasenaTemporal;
     }
 
-    // Setters (opcionales, pero se mantienen por convención)
+    // Setters
     public void setCorreo(String correo) {
         this.correo = correo;
     }
