@@ -31,13 +31,14 @@ public class HorarioScheduler {
         if (!horariosVencidos.isEmpty()) {
             horariosVencidos.forEach(horario -> {
                 horario.setFinalizado(true);
-                System.out.println("[SUCCESS] [SCHEDULER] Horario ID " + horario.getId() + " finalizado autom\u00e1ticamente. Fecha fin: "
+                System.out.println("[SUCCESS] [SCHEDULER] Horario ID " + horario.getId()
+                        + " finalizado autom\u00e1ticamente. Fecha fin: "
                         + horario.getFechaFin());
             });
             horarioRepository.saveAll(horariosVencidos);
             System.out.println("[INFO] [SCHEDULER] Total de horarios actualizados: " + horariosVencidos.size());
         } else {
-            System.out.println("ℹ\ufe0f No se encontraron horarios vencidos pendientes de finalizar.");
+            System.out.println("[INFO] [SCHEDULER] No se encontraron horarios vencidos pendientes de finalizar.");
         }
     }
 }
