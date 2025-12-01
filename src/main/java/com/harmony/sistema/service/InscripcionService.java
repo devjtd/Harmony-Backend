@@ -21,7 +21,6 @@ import java.util.Optional;
 
 /**
  * Servicio para la gestión de inscripciones.
- * Refactorizado para seguir el principio de Responsabilidad Única (SRP).
  * Delega responsabilidades específicas a servicios especializados.
  */
 @Service
@@ -39,7 +38,6 @@ public class InscripcionService {
         @Autowired
         private HorarioRepository horarioRepository;
 
-        // ✅ Servicios especializados (SRP)
         @Autowired
         private ServicioVacantes servicioVacantes;
 
@@ -58,8 +56,7 @@ public class InscripcionService {
         @Transactional
         public Cliente guardarOObtenerClienteTemporal(DatosPersonalesFormDTO datos) {
 
-                System.out.println(
-                                " [INSCRIPCION SERVICE] Procesando datos personales para email: " + datos.getEmail());
+                System.out.println("[INSCRIPCION SERVICE] Procesando datos personales para email: " + datos.getEmail());
 
                 // Verificar si ya existe un cliente con este correo
                 Optional<Cliente> clienteTemporalOpt = clienteService.encontrarClientePorCorreo(datos.getEmail());
@@ -91,13 +88,11 @@ public class InscripcionService {
          * Procesa la inscripción completa de un cliente.
          * Coordina el registro del cliente, creación de usuario, inscripciones y
          * notificaciones.
-         * 
-         * ✅ REFACTORIZADO: Ahora delega responsabilidades a servicios especializados
          */
         @Transactional
         public CredencialesDTO procesarInscripcionCompleta(InscripcionFormDTO dto,
                         Map<Long, Long> horariosSeleccionados) {
-                System.out.println(" [INSCRIPCION SERVICE] Iniciando proceso de inscripción completa para: "
+                System.out.println("[INSCRIPCION SERVICE] Iniciando proceso de inscripción completa para: "
                                 + dto.getEmail());
 
                 // 1. Registrar y activar cliente (delega a ServicioRegistroCliente)
@@ -107,7 +102,7 @@ public class InscripcionService {
                 Cliente cliente = clienteService.encontrarClientePorEmail(dto.getEmail());
 
                 // 3. Crear inscripciones para cada horario seleccionado
-                System.out.println(" [INSCRIPCION SERVICE] Procesando " + horariosSeleccionados.size()
+                System.out.println("[INSCRIPCION SERVICE] Procesando " + horariosSeleccionados.size()
                                 + " inscripciones.");
 
                 horariosSeleccionados.forEach((tallerId, horarioId) -> {
@@ -118,19 +113,17 @@ public class InscripcionService {
                         crearInscripcion(cliente, horario);
                 });
 
-                System.out.println(
-                                " [INSCRIPCION SERVICE SUCCESS] Proceso de inscripción completa finalizado.");
+                System.out.println("[INSCRIPCION SERVICE SUCCESS] Proceso de inscripción completa finalizado.");
 
                 return credenciales;
         }
 
         /**
          * Crea una inscripción individual para un cliente en un horario específico.
-         * ✅ REFACTORIZADO: Usa ServicioVacantes para gestionar vacantes
          */
         @Transactional
         public void crearInscripcion(Cliente cliente, Horario horario) {
-                System.out.println(" [INSCRIPCION SERVICE] Creando inscripción para Cliente ID: " + cliente.getId()
+                System.out.println("[INSCRIPCION SERVICE] Creando inscripción para Cliente ID: " + cliente.getId()
                                 + " en Horario ID: " + horario.getId());
 
                 // Validar que no exista inscripción duplicada
@@ -152,7 +145,7 @@ public class InscripcionService {
 
                 inscripcionRepository.save(inscripcion);
 
-                System.out.println(" [INSCRIPCION SERVICE] Inscripción creada para Horario ID: " + horario.getId());
+                System.out.println("[INSCRIPCION SERVICE] Inscripción creada para Horario ID: " + horario.getId());
         }
 
         // ==========================================
@@ -161,11 +154,10 @@ public class InscripcionService {
 
         /**
          * Inscribe un cliente existente en un horario.
-         * ✅ REFACTORIZADO: Usa ServicioVacantes
          */
         @Transactional
         public void inscribirClienteExistente(Long clienteId, Long horarioId) {
-                System.out.println(" [INSCRIPCION SERVICE] Inscribiendo cliente existente ID: " + clienteId
+                System.out.println("[INSCRIPCION SERVICE] Inscribiendo cliente existente ID: " + clienteId
                                 + " en horario ID: " + horarioId);
 
                 Cliente cliente = clienteRepository.findById(clienteId)
@@ -176,16 +168,15 @@ public class InscripcionService {
 
                 crearInscripcion(cliente, horario);
 
-                System.out.println(" [INSCRIPCION SERVICE] Inscripción exitosa.");
+                System.out.println("[INSCRIPCION SERVICE] Inscripción exitosa.");
         }
 
         /**
          * Elimina una inscripción y libera la vacante.
-         * ✅ REFACTORIZADO: Usa ServicioVacantes
          */
         @Transactional
         public void eliminarInscripcion(Long clienteId, Long horarioId) {
-                System.out.println(" [INSCRIPCION SERVICE] Eliminando inscripción - Cliente ID: " + clienteId
+                System.out.println("[INSCRIPCION SERVICE] Eliminando inscripción - Cliente ID: " + clienteId
                                 + ", Horario ID: " + horarioId);
 
                 Inscripcion inscripcion = inscripcionRepository.findByClienteIdAndHorarioId(clienteId, horarioId)
@@ -199,15 +190,14 @@ public class InscripcionService {
                 // Liberar vacante (delega a ServicioVacantes)
                 servicioVacantes.liberarVacante(horario);
 
-                System.out.println(" [INSCRIPCION SERVICE] Inscripción eliminada y vacante liberada.");
+                System.out.println("[INSCRIPCION SERVICE] Inscripción eliminada y vacante liberada.");
         }
 
         /**
          * Solicita la baja de un cliente de un horario.
-         * ✅ REFACTORIZADO: Usa ServicioNotificacion
          */
         public void solicitarBaja(Long clienteId, Long horarioId, String motivo) {
-                System.out.println(" [INSCRIPCION SERVICE] Solicitud de baja - Cliente ID: " + clienteId
+                System.out.println("[INSCRIPCION SERVICE] Solicitud de baja - Cliente ID: " + clienteId
                                 + ", Horario ID: " + horarioId);
 
                 Cliente cliente = clienteRepository.findById(clienteId)
