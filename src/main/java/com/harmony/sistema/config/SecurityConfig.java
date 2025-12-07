@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.harmony.sistema.security.JwtAuthenticationFilter;
@@ -47,49 +46,18 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // Configura login y logout
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler(mySuccessHandler())
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .permitAll())
-                .logout(logout -> logout.permitAll())
-
-                // Configura gestión de sesiones
+                // Configura gestión de sesiones como STATELESS para JWT
                 .sessionManagement(session -> session
-                        .sessionFixation(sessioFixation -> sessioFixation.newSession())
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .invalidSessionUrl("/login")
-                        .maximumSessions(1)
-                        .expiredUrl("/login"));
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configura manejo de excepciones para retornar 401 en lugar de redirigir
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println("[SECURITY] Acceso no autorizado a: " + request.getRequestURI());
+                            response.sendError(401, "No autorizado");
+                        }));
 
         return http.build();
     }
 
-    // Maneja redirección post-login según rol
-    @Bean
-    public AuthenticationSuccessHandler mySuccessHandler() {
-        System.out
-                .println(
-                        "[INFO] [CONFIG] Inicializando Bean: AuthenticationSuccessHandler (Manejo de redirección por Rol)");
-        return (request, response, authentication) -> {
-            var roles = authentication.getAuthorities();
-
-            // Redirige según el rol detectado
-            if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
-                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /admin/clientes.");
-                response.sendRedirect("/admin/clientes");
-            } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_CLIENTE"))) {
-                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /horario (Cliente).");
-                response.sendRedirect("/horario");
-            } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_PROFESOR"))) {
-                System.out.println("[INFO] [AUTH] Login exitoso. Redirigiendo a /horario (Profesor).");
-                response.sendRedirect("/horario");
-            } else {
-                System.out.println("[WARN] [AUTH] Login exitoso. Rol no reconocido. Redirigiendo a /login.");
-                response.sendRedirect("/login");
-            }
-        };
-    }
 }
